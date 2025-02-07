@@ -1,0 +1,248 @@
+import React, { useState } from "react";
+import {
+  Alert,
+  Linking,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
+
+import { SPACINGS } from "../../core/theme";
+import { ROUTES } from "../../core/constants/routes";
+
+import Profile from "../../components/home/Profile";
+import DashboardTile from "../../components/home/DashboardTile";
+import { IMAGES } from "../../core/constants/images";
+import { useDispatch, useSelector } from "react-redux";
+import { getBuildingWmslink } from "../../service/building_service";
+import { emptyingService } from "../../service/supervisor_service";
+import { useEffect } from "react";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import { resetToken } from "../../store/slices/auth.slice";
+import { Header } from "../../components/headers";
+import { Text, useTheme } from "react-native-paper";
+import colors from "../../core/theme/colors";
+
+const HomeScreen = ({ navigation }) => {
+  const navigateTo = (screen, params) => {
+    navigation.navigate(screen, params);
+  };
+
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
+
+  const { permissions } = useSelector((state) => state.auth);
+  console.log("Permissionssss", permissions);
+  useEffect(() => {
+    getPermissions();
+  }, []);
+
+  const getPermissions = () => {
+    setLoading(true);
+    if (permissions["building-survey"] === true) {
+      console.log("surveyer");
+      getBuildingWmslink()
+        .then((response) => {
+          console.log("logged in");
+        })
+        .catch((err) => {
+          console.log("ERRRRRRRRRRRRRR", err);
+          setLoading(false);
+          console.log("Error!!", err);
+          return;
+        });
+    }
+
+    if (permissions["save-assessment"] === true) {
+      console.log("supervisor");
+      emptyingService()
+        .then((response) => {
+          console.log("logged in");
+        })
+        .catch((err) => {
+          setLoading(false);
+          console.log("Error!!", err);
+          return;
+        });
+    }
+
+    if (permissions["save-emptying-service"] === true) {
+      console.log("supervisor");
+      emptyingService()
+        .then((response) => {
+          console.log("logged in");
+        })
+        .catch((err) => {
+          setLoading(false);
+          console.log("Error!!", err);
+          return;
+        });
+    }
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 5000);
+  };
+  const openInnovativeSolution = () => {
+    Linking.openURL("https://www.innovativesolution.com.np"); // Replace with the actual URL
+  };
+
+  const openCCLicense = () => {
+    Linking.openURL(
+      "https://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1"
+    );
+  };
+  const theme = useTheme();
+  const currentYear = new Date().getFullYear();
+  return (
+    <View style={[styles.container]}>
+      <Header title="Home" hideBackAction={true} />
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl onRefresh={getPermissions} refreshing={false} />
+        }
+      >
+        <Profile />
+        <LoadingSpinner isVisible={loading} title={"Loading"} />
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: theme.colors.elevation.level1,
+            borderTopLeftRadius: 12,
+            borderTopRightRadius: 12,
+            marginTop: -12,
+          }}
+        >
+          <View style={[styles.dbContainer]}>
+            {permissions["building-survey"] && (
+              <>
+                <DashboardTile
+                  title={"Building Map"}
+                  image={IMAGES.buildings}
+                  onPress={() => navigateTo(ROUTES.building_map, {})}
+                />
+
+                {/* <DashboardTile
+              title={'Containment Map'}
+              image={IMAGES.containment}
+              onPress={() => navigateTo(ROUTES.containment_map, {})}
+            /> */}
+
+                <DashboardTile
+                  title={"Buildings Data"}
+                  image={IMAGES.buildings_data}
+                  onPress={() => navigateTo(ROUTES.building_data, {})}
+                />
+
+                {/* <DashboardTile
+              title={'Containments Data'}
+              image={IMAGES.containment_data}
+              onPress={() => navigateTo(ROUTES.containment_data, {})}
+            /> */}
+              </>
+            )}
+            {/* {permissions['save-assessment'] && (
+            <DashboardTile
+              title={'Containment Assessment'}
+              image={IMAGES.assessment}
+              onPress={() =>
+                navigateTo(ROUTES.application_list, {assessment: true})
+              }
+            />
+          )} */}
+            {permissions["save-emptying-service"] && (
+              <DashboardTile
+                title={"Emptying Service"}
+                image={IMAGES.emptying}
+                onPress={() =>
+                  navigateTo(ROUTES.application_list, { emptying: true })
+                }
+              />
+            )}
+            {permissions["sewer-connection"] && (
+              <DashboardTile
+                title={"Sewer Map"}
+                image={IMAGES.emptying}
+                onPress={() => navigateTo(ROUTES.sewage_map)}
+              />
+            )}
+            {permissions["sewer-connection"] && (
+              <DashboardTile
+                title={"Sewer Data"}
+                image={IMAGES.assessment}
+                onPress={() => navigateTo(ROUTES.sewage_data)}
+              />
+            )}
+            {/* <DashboardTile
+          title={'Land'}
+          onPress={() => navigateTo(ROUTES.land_service)}
+          image={IMAGES.land}
+        /> */}
+          </View>
+          <View style={[styles.bottomContainer]}>
+            <Text style={styles.bottomText} variant="labelLarge">
+              Base IMIS {"\u00A9"} 2022-{currentYear} by{" "}
+              <TouchableWithoutFeedback onPress={openInnovativeSolution}>
+                <Text style={styles.bottomLink} variant="labelLarge">
+                  Innovative Solution Pvt. Ltd.
+                </Text>
+              </TouchableWithoutFeedback>{" "}
+              is licensed under{" "}
+              <TouchableWithoutFeedback onPress={openCCLicense}>
+                <Text variant="labelLarge" style={styles.bottomLink}>
+                  CC BY-NC-SA 4.0
+                </Text>
+              </TouchableWithoutFeedback>
+              .
+            </Text>
+            <Text
+              style={[styles.bottomText, { marginTop: 18 }]}
+              variant="labelLarge"
+            >
+              Developed by{" "}
+              <TouchableWithoutFeedback onPress={openInnovativeSolution}>
+                <Text variant="labelLarge" style={styles.bottomLink}>
+                  Innovative Solution Pvt. Ltd.
+                </Text>
+              </TouchableWithoutFeedback>
+            </Text>
+          </View>
+        </View>
+      </ScrollView>
+    </View>
+  );
+};
+
+export default HomeScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  bottomContainer: {
+    flex: 1,
+    justifyContent: "flex-end",
+    padding: 12,
+    marginTop: 18,
+  },
+  bottomText: {
+    textAlign: "center",
+    color: colors.darkGrey,
+  },
+  bottomLink: {
+    color: "rgb(30, 77, 120)",
+    lineHeight: 20,
+  },
+  dbContainer: {
+    flex: 1,
+    padding: SPACINGS.sm,
+    flexWrap: "wrap",
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+});
