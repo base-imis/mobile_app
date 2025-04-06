@@ -18,15 +18,20 @@ import DashboardTile from "../../components/home/DashboardTile";
 import { IMAGES } from "../../core/constants/images";
 import { useDispatch, useSelector } from "react-redux";
 import { getBuildingWmslink } from "../../service/building_service";
-import { emptyingService } from "../../service/supervisor_service";
+import {
+  emptyingService,
+  getLanguagesList,
+} from "../../service/supervisor_service";
 import { useEffect } from "react";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
-import { resetToken } from "../../store/slices/auth.slice";
 import { Header } from "../../components/headers";
 import { Text, useTheme } from "react-native-paper";
 import colors from "../../core/theme/colors";
+import { setLanguages } from "../../store/slices/auth.slice";
 
 const HomeScreen = ({ navigation }) => {
+  const { contentsLabel } = useSelector((state) => state.auth);
+  const getLabel = (key) => contentsLabel?.[key] || key;
   const navigateTo = (screen, params) => {
     navigation.navigate(screen, params);
   };
@@ -35,13 +40,14 @@ const HomeScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
 
   const { permissions } = useSelector((state) => state.auth);
-  console.log("Permissionssss", permissions);
+
   useEffect(() => {
     getPermissions();
   }, []);
 
   const getPermissions = () => {
     setLoading(true);
+    fetchLanguages();
     if (permissions["building-survey"] === true) {
       console.log("surveyer");
       getBuildingWmslink()
@@ -49,15 +55,12 @@ const HomeScreen = ({ navigation }) => {
           console.log("logged in");
         })
         .catch((err) => {
-          console.log("ERRRRRRRRRRRRRR", err);
           setLoading(false);
-          console.log("Error!!", err);
           return;
         });
     }
 
     if (permissions["save-assessment"] === true) {
-      console.log("supervisor");
       emptyingService()
         .then((response) => {
           console.log("logged in");
@@ -86,6 +89,22 @@ const HomeScreen = ({ navigation }) => {
       setLoading(false);
     }, 5000);
   };
+  const fetchLanguages = async () => {
+    try {
+      getLanguagesList()
+        .then((response) => {
+          if (response?.data?.languages) {
+            dispatch(setLanguages(response?.data?.languages));
+          }
+        })
+        .catch((err) => {
+          console.log("Error!!", err);
+          return;
+        });
+    } catch (error) {
+      console.error("Failed to fetch languages:", error);
+    }
+  };
   const openInnovativeSolution = () => {
     Linking.openURL("https://www.innovativesolution.com.np"); // Replace with the actual URL
   };
@@ -97,9 +116,10 @@ const HomeScreen = ({ navigation }) => {
   };
   const theme = useTheme();
   const currentYear = new Date().getFullYear();
+
   return (
     <View style={[styles.container]}>
-      <Header title="Home" hideBackAction={true} />
+      <Header title={getLabel("Home")} type="home" hideBackAction={true} />
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         showsVerticalScrollIndicator={false}
@@ -122,7 +142,7 @@ const HomeScreen = ({ navigation }) => {
             {permissions["building-survey"] && (
               <>
                 <DashboardTile
-                  title={"Building Map"}
+                  title={getLabel("Building Map")}
                   image={IMAGES.buildings}
                   onPress={() => navigateTo(ROUTES.building_map, {})}
                 />
@@ -134,7 +154,7 @@ const HomeScreen = ({ navigation }) => {
             /> */}
 
                 <DashboardTile
-                  title={"Buildings Data"}
+                  title={getLabel("Buildings Data")}
                   image={IMAGES.buildings_data}
                   onPress={() => navigateTo(ROUTES.building_data, {})}
                 />
@@ -157,7 +177,7 @@ const HomeScreen = ({ navigation }) => {
           )} */}
             {permissions["save-emptying-service"] && (
               <DashboardTile
-                title={"Emptying Service"}
+                title={getLabel("Emptying Service")}
                 image={IMAGES.emptying}
                 onPress={() =>
                   navigateTo(ROUTES.application_list, { emptying: true })
@@ -166,14 +186,14 @@ const HomeScreen = ({ navigation }) => {
             )}
             {permissions["sewer-connection"] && (
               <DashboardTile
-                title={"Sewer Map"}
+                title={getLabel("Sewer Map")}
                 image={IMAGES.emptying}
                 onPress={() => navigateTo(ROUTES.sewage_map)}
               />
             )}
             {permissions["sewer-connection"] && (
               <DashboardTile
-                title={"Sewer Data"}
+                title={getLabel("Sewer Data")}
                 image={IMAGES.assessment}
                 onPress={() => navigateTo(ROUTES.sewage_data)}
               />
@@ -188,9 +208,15 @@ const HomeScreen = ({ navigation }) => {
             <Text style={styles.bottomText} variant="labelLarge">
               Base IMIS {"\u00A9"} 2022-{currentYear} by{" "}
               <TouchableWithoutFeedback onPress={openInnovativeSolution}>
-                <Text style={styles.bottomLink} variant="labelLarge">
-                  Innovative Solution Pvt. Ltd.
-                </Text>
+                <>
+                  <Text style={styles.bottomLink} variant="labelLarge">
+                    ISPL
+                  </Text>{" "}
+                  &{" "}
+                  <Text style={styles.bottomLink} variant="labelLarge">
+                    GWSC-AIT
+                  </Text>
+                </>
               </TouchableWithoutFeedback>{" "}
               is licensed under{" "}
               <TouchableWithoutFeedback onPress={openCCLicense}>
@@ -199,17 +225,6 @@ const HomeScreen = ({ navigation }) => {
                 </Text>
               </TouchableWithoutFeedback>
               .
-            </Text>
-            <Text
-              style={[styles.bottomText, { marginTop: 18 }]}
-              variant="labelLarge"
-            >
-              Developed by{" "}
-              <TouchableWithoutFeedback onPress={openInnovativeSolution}>
-                <Text variant="labelLarge" style={styles.bottomLink}>
-                  Innovative Solution Pvt. Ltd.
-                </Text>
-              </TouchableWithoutFeedback>
             </Text>
           </View>
         </View>

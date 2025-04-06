@@ -1,56 +1,58 @@
-import React from 'react';
-import {StyleSheet, FlatList, Alert} from 'react-native';
-import {Button, Caption, Card, Divider, Text} from 'react-native-paper';
+import React from "react";
+import { StyleSheet, FlatList, Alert } from "react-native";
+import { Button, Caption, Card, Divider, Text } from "react-native-paper";
 
-import {useDispatch, useSelector} from 'react-redux';
-import HorizontalSpacer from '../../components/common/HorizontalSpacer';
-import VerticalSpacer from '../../components/common/VerticalSpacer';
+import { useDispatch, useSelector } from "react-redux";
+import HorizontalSpacer from "../../components/common/HorizontalSpacer";
+import VerticalSpacer from "../../components/common/VerticalSpacer";
 
-import {COLORS, SPACINGS} from '../../core/theme';
-import {removeContainmentData} from '../../store/slices/map.slice';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
-import {useState} from 'react';
-import {uploadContainmentData} from '../../service/building_service';
-import {ROUTES} from '../../core/constants/routes';
-import {resetToken} from '../../store/slices/auth.slice';
-import {ErrorMessage} from '../../components/errorComponent';
-import {Header} from '../../components/headers';
+import { COLORS, SPACINGS } from "../../core/theme";
+import { removeContainmentData } from "../../store/slices/map.slice";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import { useState } from "react";
+import { uploadContainmentData } from "../../service/building_service";
+import { ROUTES } from "../../core/constants/routes";
+import { resetToken } from "../../store/slices/auth.slice";
+import { ErrorMessage } from "../../components/errorComponent";
+import { Header } from "../../components/headers";
 
-const ContainmentDataScreen = ({navigation}) => {
+const ContainmentDataScreen = ({ navigation }) => {
+  const { contentsLabel } = useSelector((state) => state.auth);
+  const getLabel = (key) => contentsLabel?.[key] || key;
   const dispatch = useDispatch();
-  const {containmentData} = useSelector(state => state.map);
+  const { containmentData } = useSelector((state) => state.map);
   const [loading, setLoading] = useState(false);
 
-  const convertDate = date => {
-    let newDate = date.split('-').reverse();
+  const convertDate = (date) => {
+    let newDate = date.split("-").reverse();
     let temp = newDate[2];
     newDate[2] = newDate[1];
     newDate[1] = temp;
-    newDate = newDate.join('-');
+    newDate = newDate.join("-");
     return newDate;
   };
 
-  const deleteContainmentData = index => {
+  const deleteContainmentData = (index) => {
     Alert.alert(
-      'Confirm delete',
-      'Are you sure you want to delete this containment information?',
+      "Confirm delete",
+      "Are you sure you want to delete this containment information?",
       [
         {
-          text: 'Cancel',
+          text: "Cancel",
         },
         {
-          text: 'Delete',
+          text: "Delete",
           onPress: () => {
             dispatch(removeContainmentData(index));
           },
         },
-      ],
+      ]
     );
   };
 
   const onUpload = (item, index) => {
     setLoading(true);
-    let date = item.created_date.split(',')[0];
+    let date = item.created_date.split(",")[0];
 
     let collected_date = convertDate(date);
 
@@ -65,38 +67,38 @@ const ContainmentDataScreen = ({navigation}) => {
       },
     ];
 
-    data.append('json', JSON.stringify(json));
+    data.append("json", JSON.stringify(json));
 
     uploadContainmentData(data)
-      .then(response => {
-        const {success, error, data, status, message} = response.data;
+      .then((response) => {
+        const { success, error, data, status, message } = response.data;
 
         if (success || status) {
-          Alert.alert('Uploaded', message);
+          Alert.alert(getLabel("Uploaded"), message);
           dispatch(removeContainmentData(index));
         } else {
           if (error?.assessment) {
-            console.log('assessment', JSON.stringify(error));
-            error.assessment.map(err => {
-              if (err[0] === 'The containment code is already registered') {
+            console.log("assessment", JSON.stringify(error));
+            error.assessment.map((err) => {
+              if (err[0] === "The containment code is already registered") {
                 Alert.alert(
-                  'Error',
-                  'The containment code is already registered, deleting this list',
+                  "Error",
+                  "The containment code is already registered, deleting this list"
                 );
                 dispatch(removeContainmentData(index));
               } else {
-                Alert.alert('Error', err[0]);
+                Alert.alert("Error", err[0]);
               }
             });
           }
         }
       })
-      .catch(err => {
-        console.log('Error', err);
+      .catch((err) => {
+        console.log("Error", err);
         if (err?.response?.status === 500) {
           Alert.alert(
-            '500',
-            'Something is wrong, please try again or at a later time.',
+            "500",
+            "Something is wrong, please try again or at a later time."
           );
         }
       })
@@ -105,7 +107,7 @@ const ContainmentDataScreen = ({navigation}) => {
       });
   };
 
-  const renderContainmentItems = ({item, index}) => {
+  const renderContainmentItems = ({ item, index }) => {
     return (
       <Card style={styles.singleData}>
         <Card.Content>
@@ -128,7 +130,8 @@ const ContainmentDataScreen = ({navigation}) => {
           <Button
             compact
             mode="outlined"
-            onPress={() => deleteContainmentData(index)}>
+            onPress={() => deleteContainmentData(index)}
+          >
             Delete
           </Button>
           <HorizontalSpacer size={20} />
@@ -136,7 +139,8 @@ const ContainmentDataScreen = ({navigation}) => {
             compact
             mode="contained"
             contentStyle={styles.btnContent}
-            onPress={() => onUpload(item, index)}>
+            onPress={() => onUpload(item, index)}
+          >
             Upload
           </Button>
           <HorizontalSpacer size={20} />
@@ -145,8 +149,9 @@ const ContainmentDataScreen = ({navigation}) => {
             mode="contained"
             contentStyle={styles.btnContent}
             onPress={() =>
-              navigation.navigate(ROUTES.containment_viewer, {item})
-            }>
+              navigation.navigate(ROUTES.containment_viewer, { item })
+            }
+          >
             View on map
           </Button>
         </Card.Actions>
@@ -155,7 +160,7 @@ const ContainmentDataScreen = ({navigation}) => {
   };
 
   return (
-    <View style={{flex: 1}}>
+    <View style={{ flex: 1 }}>
       <Header title="Containments Data" />
       {containmentData.length > 0 ? (
         <>
@@ -171,7 +176,7 @@ const ContainmentDataScreen = ({navigation}) => {
         </>
       ) : (
         <ErrorMessage
-          message={'You have not added any containment data into this device'}
+          message={"You have not added any containment data into this device"}
         />
       )}
     </View>

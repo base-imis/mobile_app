@@ -5,6 +5,7 @@ import { COLORS } from "../../core/theme";
 import { StyleSheet } from "react-native";
 import dayjs from "dayjs";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { useSelector } from "react-redux";
 
 const ApplicationListCard = ({ item, onCall, onLocation, onStart }) => {
   const [expanded, setExpanded] = useState(true);
@@ -13,13 +14,17 @@ const ApplicationListCard = ({ item, onCall, onLocation, onStart }) => {
     if (!value) return "N/A"; // Handle undefined or null values
     return value.startsWith("{") ? value.replace(/[{}]/g, "") : value;
   };
+
+  const { contentsLabel } = useSelector((state) => state.auth);
+  const getLabel = (key) => contentsLabel?.[key] || key;
+
   return (
     <View style={styles.container}>
       <Pressable style={styles.header} onPress={() => setExpanded(!expanded)}>
         <Icon name="file" color={COLORS.primary} size={22} />
-        <Subheading style={styles.title} numberOfLines={1}>{`Application ID: #${
-          item?.id ? item?.id : "N/A"
-        } `}</Subheading>
+        <Subheading style={styles.title} numberOfLines={1}>{`${getLabel(
+          "Application ID"
+        )}: #${item?.id ? item?.id : "N/A"} `}</Subheading>
         <Icon name={expanded ? "chevron-up" : "chevron-down"} size={22} />
       </Pressable>
 
@@ -29,7 +34,7 @@ const ApplicationListCard = ({ item, onCall, onLocation, onStart }) => {
           <Divider />
           <Divider style={styles.divider} />
           <View style={styles.row}>
-            <Text>Application Date: </Text>
+            <Text>{getLabel("Application Date")}: </Text>
             <Text style={styles.text}>
               {item?.application_date
                 ? dayjs(item?.application_date).format("DD MMMM YYYY")
@@ -37,7 +42,7 @@ const ApplicationListCard = ({ item, onCall, onLocation, onStart }) => {
             </Text>
           </View>
           <View style={styles.row}>
-            <Text>House Number: </Text>
+            <Text>{getLabel("House Number")}: </Text>
             <Text style={styles.text}>
               {item?.building_house_number
                 ? item?.building_house_number
@@ -45,57 +50,57 @@ const ApplicationListCard = ({ item, onCall, onLocation, onStart }) => {
             </Text>
           </View>
           <View style={styles.row}>
-            <Text>BIN: </Text>
+            <Text>{getLabel("BIN")}: </Text>
             <Text style={styles.text}>{item?.bin ? item?.bin : "N/A"}</Text>
           </View>
           <View style={styles.row}>
-            <Text>Ward: </Text>
+            <Text>{getLabel("Ward")}: </Text>
             <Text style={styles.text}>{item?.ward ? item?.ward : "N/A"}</Text>
           </View>
           <View style={styles.row}>
-            <Text>Applicant's Name: </Text>
+            <Text>{getLabel("Applicant's Name")}: </Text>
             <Text style={styles.text}>
               {item?.applicant_name ? item?.applicant_name : "N/A"}
             </Text>
           </View>
           <View style={styles.row}>
-            <Text>Applicant's Gender: </Text>
+            <Text>{getLabel("Applicant's Gender")}:</Text>
             <Text style={styles.text}>{item?.applicant_gender ?? "N/A"}</Text>
           </View>
           <View style={styles.row}>
-            <Text>Applicant's Contact: </Text>
+            <Text>{getLabel("Applicant's Contact")}:</Text>
             <Text style={styles.text}>
               {item?.applicant_contact ? item?.applicant_contact : "N/A"}
             </Text>
           </View>
           <View style={styles.row}>
-            <Text>Emergency Desluding Status: </Text>
+            <Text>{getLabel("Emergency Desluding Status")}:</Text>
             <Text style={styles.text}>
               {item?.emergency_desludging_status ? "Yes" : "No"}
             </Text>
           </View>
           <View style={styles.row}>
-            <Text>Road width (m): </Text>
+            <Text>{getLabel("Road width (m)")}: </Text>
             <Text style={styles.text}>{item?.carrying_width ?? "N/A"}</Text>
           </View>
-          {item?.containment_ids && (
+          {item?.containment_id && (
             <View style={styles.row}>
-              <Text>Containment Ids: </Text>
+              <Text>{getLabel("Containment Id")}: </Text>
               <Text style={styles.text}>
-                {formatSize(item?.containment_ids)}
+                {formatSize(item?.containment_id)}
               </Text>
             </View>
           )}
           {item?.containment_size && (
             <View style={styles.row}>
-              <Text>Containment Size (m³): </Text>
+              <Text>{getLabel("Containment Size (m³)")}:</Text>
               <Text style={styles.text}>
                 {formatSize(item?.containment_size)}
               </Text>
             </View>
           )}
           <View style={styles.row}>
-            <Text>Proposed Emptying date: </Text>
+            <Text>{getLabel("Proposed Emptying Date")}:</Text>
             <Text style={styles.text}>
               {item?.proposed_emptying_date
                 ? dayjs(item?.proposed_emptying_date).format("DD MMMM YYYY")

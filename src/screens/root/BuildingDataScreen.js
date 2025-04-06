@@ -33,8 +33,8 @@ import { BASE_URL_ENV } from "../../constants/config";
 
 const BuildingDataScreen = ({ navigation }) => {
   const dispatch = useDispatch();
+  const { contentsLabel } = useSelector((state) => state.auth);
   const { buildingsData } = useSelector((state) => state.map);
-  console.log("BuildingData!!", buildingsData);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -42,17 +42,17 @@ const BuildingDataScreen = ({ navigation }) => {
       setLoading(false);
     };
   }, []);
-
+  const getLabel = (key) => contentsLabel?.[key] || key;
   const deleteBuildingData = (index) => {
     Alert.alert(
-      "Confirm delete",
-      "Are you sure you want to delete this building information?",
+      getLabel("Confirm delete"),
+      getLabel("Are you sure you want to delete this building information?"),
       [
         {
-          text: "Cancel",
+          text: getLabel("CANCEL"), // Using "CANCEL" from your provided list
         },
         {
-          text: "Delete",
+          text: getLabel("DELETE"), // Using "DELETE" from your provided list
           onPress: () => {
             dispatch(removeBuildingData(index));
           },
@@ -109,7 +109,11 @@ const BuildingDataScreen = ({ navigation }) => {
         const { status, success, errors, message } = res;
 
         if (status || success) {
-          Alert.alert("Uploaded", message);
+          Alert.alert(getLabel("Uploaded"), message, [
+            {
+              text: getLabel("OK"), // Using "CANCEL" from your provided list
+            },
+          ]);
           dispatch(removeBuildingData(index));
           RNFB.fs.unlink(item.path);
         } else {
@@ -117,13 +121,25 @@ const BuildingDataScreen = ({ navigation }) => {
             const { temp_building_code, tax_code } = errors;
 
             if (temp_building_code) {
-              Alert.alert("Error", temp_building_code[0]);
+              Alert.alert(getLabel("Error"), temp_building_code[0], [
+                {
+                  text: getLabel("OK"), // Using "CANCEL" from your provided list
+                },
+              ]);
               return;
             } else if (tax_code) {
-              Alert.alert("Error", tax_code[0]);
+              Alert.alert(getLabel("Error"), tax_code[0], [
+                {
+                  text: getLabel("OK"), // Using "CANCEL" from your provided list
+                },
+              ]);
             }
           } else {
-            Alert.alert("Error", message);
+            Alert.alert(getLabel("Error"), message, [
+              {
+                text: getLabel("OK"), // Using "CANCEL" from your provided list
+              },
+            ]);
           }
         }
       })
@@ -136,7 +152,11 @@ const BuildingDataScreen = ({ navigation }) => {
 
         if (err?.response?.status === 500) {
           if (message) {
-            Alert.alert("Invalid file format", message);
+            Alert.alert(getLabel("Invalid file format"), message, [
+              {
+                text: getLabel("OK"), // Using "CANCEL" from your provided list
+              },
+            ]);
             return;
           }
 
@@ -152,63 +172,70 @@ const BuildingDataScreen = ({ navigation }) => {
   };
 
   const renderBuildlingItems = ({ item, index }) => {
-    console.log("Item!!Render", item?.imageFile);
     return (
       <Card style={styles.singleData} theme={{ roundness: 2 }}>
         <Card.Content
           style={{ flexDirection: "row", justifyContent: "space-between" }}
         >
           <View style={{ width: "100%" }}>
-            <Caption>Temporary Building Code</Caption>
+            <Caption>{getLabel("Temporary Building Code")}</Caption>
             <Text>{item?.temp_building_code}</Text>
 
-            <Caption>Tax Code</Caption>
+            <Caption>{getLabel("Tax Code")}</Caption>
             <Text>{item?.tax_code}</Text>
 
-            {/* <Caption>Path</Caption>
-          <Text>{item.path}</Text> */}
-
-            <Caption>Created date</Caption>
+            <Caption>{getLabel("Created date")}</Caption>
             <Text>{item?.created_date}</Text>
           </View>
         </Card.Content>
         <VerticalSpacer />
         <Divider />
         <VerticalSpacer size={2} />
-        <Card.Actions>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "row",
+            paddingHorizontal: 16,
+            paddingVertical: 16,
+            gap: 8,
+          }}
+        >
+          {/* <Card.Actions> */}
           <Button
             compact
+            contentStyle={styles.deleteBtn}
             mode="outlined"
             onPress={() => deleteBuildingData(index)}
           >
-            Delete
+            {getLabel("Delete")}
           </Button>
-          <HorizontalSpacer size={5} />
+
           <Button
             compact
             mode="contained"
             contentStyle={styles.btnContent}
             onPress={() => onUpload(item, index)}
           >
-            Upload
+            {getLabel("Upload")}
           </Button>
-          <HorizontalSpacer size={10} />
+
           <Button
             compact
             mode="contained"
             contentStyle={styles.btnContent}
             onPress={() => navigation.navigate(ROUTES.kml_viewer, { item })}
           >
-            View on map
+            {getLabel("View on map")}
           </Button>
-        </Card.Actions>
+          {/* </Card.Actions> */}
+        </View>
       </Card>
     );
   };
 
   return (
     <View style={styles.container}>
-      <Header title="Buildings Data" />
+      <Header title={getLabel("Buildings Data")} />
       {buildingsData.length > 0 ? (
         <>
           <LoadingSpinner isVisible={loading} title="Uploading" />
@@ -222,7 +249,9 @@ const BuildingDataScreen = ({ navigation }) => {
           />
         </>
       ) : (
-        <ErrorMessage message={"No building data stored in this device"} />
+        <ErrorMessage
+          message={getLabel("No building data stored in this device")}
+        />
       )}
     </View>
   );
@@ -245,14 +274,10 @@ const styles = StyleSheet.create({
 
   btnContent: {
     backgroundColor: COLORS.primary,
+    minWidth: 85,
   },
 
   deleteBtn: {
-    backgroundColor: COLORS.error,
-  },
-
-  mapBtn: {
-    paddingLeft: 20,
-    backgroundColor: COLORS.primary,
+    minWidth: 85,
   },
 });

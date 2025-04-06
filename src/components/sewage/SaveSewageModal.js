@@ -4,7 +4,7 @@ import { Button, Dialog, HelperText, Portal } from "react-native-paper";
 
 import { COLORS, SPACINGS } from "../../core/theme";
 
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addSewageData } from "../../store/slices/map.slice";
 import HorizontalSpacer from "../common/HorizontalSpacer";
 import SearchableSheet from "../common/SearchableSheet";
@@ -13,7 +13,8 @@ import { getBuildings, getSewerCode } from "../../service/building_service";
 
 const SaveSewageModal = ({ visible, onClose, onDataSaved }) => {
   const dispatch = useDispatch();
-
+  const { contentsLabel } = useSelector((state) => state.auth);
+  const getLabel = (key) => contentsLabel?.[key] || key;
   const [buildingId, setBuildingId] = useState("");
   const [sewerId, setSewerId] = useState("");
 
@@ -36,12 +37,14 @@ const SaveSewageModal = ({ visible, onClose, onDataSaved }) => {
     setTaxCodeError(null);
 
     if (buildingId === "") {
-      setBuildingIdError("Building identification number can not be empty!");
+      setBuildingIdError(
+        getLabel("Building identification number can not be empty!")
+      );
       return false;
     }
 
     if (sewerId === "") {
-      setTaxCodeError("Sewer Id can not be empty!");
+      setTaxCodeError(getLabel("Sewer Id can not be empty!"));
       return false;
     }
 
@@ -56,7 +59,15 @@ const SaveSewageModal = ({ visible, onClose, onDataSaved }) => {
 
     dispatch(addSewageData(payload));
 
-    Alert.alert("Saved", "Sewer data saved to local storage");
+    Alert.alert(
+      getLabel("Saved"),
+      getLabel("Sewer data saved to local storage"),
+      [
+        {
+          text: getLabel("OK"),
+        },
+      ]
+    );
 
     onDataSaved();
     setBuildingId("");
@@ -98,7 +109,7 @@ const SaveSewageModal = ({ visible, onClose, onDataSaved }) => {
   return (
     <Portal>
       <Dialog visible={visible} onDismiss={() => onClose(false)}>
-        <Dialog.Title>Save Sewer Info</Dialog.Title>
+        <Dialog.Title>{getLabel("Save Sewer Info")}</Dialog.Title>
         <Dialog.ScrollArea>
           <ScrollView
             showsVerticalScrollIndicator={false}
@@ -110,8 +121,8 @@ const SaveSewageModal = ({ visible, onClose, onDataSaved }) => {
                 setBuildingId(id);
                 setBuildingIdError("");
               }}
-              placeholder="BIN"
-              title="Select BIN"
+              placeholder={getLabel("Select BIN")}
+              title={getLabel("Select BIN")}
               mode="outlined"
               onClearPress={() => setBuildingId("")}
               data={buildings}
@@ -128,8 +139,8 @@ const SaveSewageModal = ({ visible, onClose, onDataSaved }) => {
                 setTaxCodeError("");
                 setSewerId(id);
               }}
-              placeholder="Sewer Code"
-              title="Select sewer"
+              placeholder={getLabel("Select sewer")}
+              title={getLabel("Select sewer")}
               mode="outlined"
               onClearPress={() => setSewerId("")}
               data={sewers}
@@ -140,10 +151,10 @@ const SaveSewageModal = ({ visible, onClose, onDataSaved }) => {
           </ScrollView>
         </Dialog.ScrollArea>
         <Dialog.Actions>
-          <Button onPress={() => onClose(false)}>Close</Button>
+          <Button onPress={() => onClose(false)}>{getLabel("Close")}</Button>
           <HorizontalSpacer size={18} />
           <Button mode="contained" onPress={handleOnSave}>
-            Save
+            {getLabel("Save")}
           </Button>
           <HorizontalSpacer />
         </Dialog.Actions>

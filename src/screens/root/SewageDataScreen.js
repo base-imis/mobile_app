@@ -1,27 +1,29 @@
-import React from 'react';
-import {Alert, FlatList, StyleSheet, View} from 'react-native';
-import {Button, Caption, Card, Divider, Text} from 'react-native-paper';
-import {useDispatch, useSelector} from 'react-redux';
+import React from "react";
+import { Alert, FlatList, StyleSheet, View } from "react-native";
+import { Button, Caption, Card, Divider, Text } from "react-native-paper";
+import { useDispatch, useSelector } from "react-redux";
 
-import HorizontalSpacer from '../../components/common/HorizontalSpacer';
-import VerticalSpacer from '../../components/common/VerticalSpacer';
+import HorizontalSpacer from "../../components/common/HorizontalSpacer";
+import VerticalSpacer from "../../components/common/VerticalSpacer";
 
-import {COLORS, SPACINGS} from '../../core/theme';
-import {removeSewageData} from '../../store/slices/map.slice';
+import { COLORS, SPACINGS } from "../../core/theme";
+import { removeSewageData } from "../../store/slices/map.slice";
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useEffect, useState} from 'react';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
-import {ROUTES} from '../../core/constants/routes';
-import {URLS} from '../../core/constants/urls';
-import {resetToken} from '../../store/slices/auth.slice';
-import {ErrorMessage} from '../../components/errorComponent';
-import {Header} from '../../components/headers';
-import {BASE_URL_ENV} from '../../constants/config';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import { ROUTES } from "../../core/constants/routes";
+import { URLS } from "../../core/constants/urls";
+import { resetToken } from "../../store/slices/auth.slice";
+import { ErrorMessage } from "../../components/errorComponent";
+import { Header } from "../../components/headers";
+import { BASE_URL_ENV } from "../../constants/config";
 
-const BuildingDataScreen = ({navigation}) => {
+const BuildingDataScreen = () => {
+  const { contentsLabel } = useSelector((state) => state.auth);
+  const getLabel = (key) => contentsLabel?.[key] || key;
   const dispatch = useDispatch();
-  const {sewageData} = useSelector(state => state.map);
+  const { sewageData } = useSelector((state) => state.map);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -30,83 +32,83 @@ const BuildingDataScreen = ({navigation}) => {
     };
   }, []);
 
-  const deleteBuildingData = index => {
+  const deleteBuildingData = (index) => {
     Alert.alert(
-      'Confirm delete',
-      'Are you sure you want to delete this sewer information?',
+      getLabel("Confirm delete"),
+      getLabel("Are you sure you want to delete this sewer information?"),
       [
         {
-          text: 'Cancel',
+          text: getLabel("CANCEL"),
         },
         {
-          text: 'Delete',
+          text: getLabel("DELETE"),
           onPress: () => {
             dispatch(removeSewageData(index));
           },
         },
-      ],
+      ]
     );
   };
 
   const onUpload = async (item, index) => {
     setLoading(true);
 
-    const token = await AsyncStorage.getItem('token');
+    const token = await AsyncStorage.getItem("token");
 
     const url = `${BASE_URL_ENV}/api/${URLS.saveSewerData}`;
 
     const formdata = new FormData();
 
-    formdata.append('bin', item.bin);
-    formdata.append('sewer_code', item.sewer_code);
+    formdata.append("bin", item.bin);
+    formdata.append("sewer_code", item.sewer_code);
 
     fetch(url, {
-      method: 'POST',
+      method: "POST",
       body: formdata,
       headers: {
-        Accept: 'application/json',
+        Accept: "application/json",
         Authorization: `Bearer ${token}`,
       },
-      redirect: 'follow',
+      redirect: "follow",
     })
-      .then(res => res.json())
-      .then(res => {
-        const {success, errors, message} = res;
+      .then((res) => res.json())
+      .then((res) => {
+        const { success, errors, message } = res;
 
         if (success) {
-          Alert.alert('Uploaded', message);
+          Alert.alert(getLabel("Uploaded"), message);
           dispatch(removeSewageData(index));
         } else {
           if (errors) {
-            const {bin, tax_code} = errors;
+            const { bin, tax_code } = errors;
 
             if (bin) {
-              Alert.alert('Error', bin[0]);
+              Alert.alert("Error", bin[0]);
               return;
             } else if (tax_code) {
-              Alert.alert('Error', tax_code[0]);
+              Alert.alert("Error", tax_code[0]);
             }
           } else {
-            Alert.alert('Error', message);
+            Alert.alert("Error", message);
           }
         }
       })
-      .catch(err => {
-        console.log('building err', err);
+      .catch((err) => {
+        console.log("building err", err);
 
-        const {message} = err?.response?.data;
+        const { message } = err?.response?.data;
 
         setLoading(false);
 
         if (err?.response?.status === 500) {
           if (message) {
-            Alert.alert('Invalid file format', message);
+            Alert.alert("Invalid file format", message);
             return;
           }
 
           Alert.alert(
-            '500',
-            'Something is wrong, please try again or at a later time.',
+            "500",
+            "Something is wrong, please try again or at a later time."
           );
         }
       })
@@ -115,20 +117,20 @@ const BuildingDataScreen = ({navigation}) => {
       });
   };
 
-  const renderBuildlingItems = ({item, index}) => {
+  const renderBuildlingItems = ({ item, index }) => {
     return (
-      <Card style={styles.singleData} theme={{roundness: 2}}>
+      <Card style={styles.singleData} theme={{ roundness: 2 }}>
         <Card.Content>
-          <Caption>Building identification number</Caption>
+          <Caption>{getLabel("Building identification number")}</Caption>
           <Text>{item.bin}</Text>
 
-          <Caption>Sewer Code</Caption>
+          <Caption>{getLabel("Sewer Code")}</Caption>
           <Text>{item.sewer_code}</Text>
 
           {/* <Caption>Path</Caption>
           <Text>{item.path}</Text> */}
 
-          <Caption>Created date</Caption>
+          <Caption>{getLabel("Created date")}</Caption>
           <Text>{item.created_date}</Text>
         </Card.Content>
         <VerticalSpacer />
@@ -138,16 +140,18 @@ const BuildingDataScreen = ({navigation}) => {
           <Button
             compact
             mode="outlined"
-            onPress={() => deleteBuildingData(index)}>
-            Delete
+            onPress={() => deleteBuildingData(index)}
+          >
+            {getLabel("Delete")}
           </Button>
           <HorizontalSpacer size={5} />
           <Button
             compact
             mode="contained"
             contentStyle={styles.btnContent}
-            onPress={() => onUpload(item, index)}>
-            Upload
+            onPress={() => onUpload(item, index)}
+          >
+            {getLabel("Upload")}
           </Button>
           <HorizontalSpacer size={10} />
         </Card.Actions>
@@ -157,7 +161,7 @@ const BuildingDataScreen = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <Header title="Sewer Data" />
+      <Header title={getLabel("Sewer Data")} />
       {sewageData.length > 0 ? (
         <>
           <LoadingSpinner isVisible={loading} title="Uploading" />
@@ -172,7 +176,9 @@ const BuildingDataScreen = ({navigation}) => {
         </>
       ) : (
         <ErrorMessage
-          message={'You have not added any sewer data into this device'}
+          message={getLabel(
+            "You have not added any sewer data into this device"
+          )}
         />
       )}
     </View>

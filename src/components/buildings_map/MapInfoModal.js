@@ -1,5 +1,5 @@
-import React from 'react';
-import {ScrollView, StyleSheet, View} from 'react-native';
+import React from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
 import {
   Button,
   Caption,
@@ -8,32 +8,48 @@ import {
   Portal,
   Subheading,
   Text,
-} from 'react-native-paper';
-import {useSelector} from 'react-redux';
+} from "react-native-paper";
+import { useSelector } from "react-redux";
 
-import HorizontalSpacer from '../common/HorizontalSpacer';
+import HorizontalSpacer from "../common/HorizontalSpacer";
+import { COLORS, SPACINGS } from "../../core/theme";
 
-import {COLORS, SPACINGS} from '../../core/theme';
+const MapInfoModal = ({ visible, onClose, onNext, buildingCoords }) => {
+  const { contentsLabel } = useSelector((state) => state.auth);
+  const getLabel = (key) => contentsLabel?.[key] || key;
 
-const MapInfoModal = ({visible, onClose, onNext, buildingCoords}) => {
-  // const {buildingCoords} = useSelector(state => state.map);
+  const TableHeader = () => {
+    return (
+      <View style={styles.tableHeader}>
+        <Subheading style={styles.tableTitle}>{getLabel("Marker")}</Subheading>
 
+        <Subheading style={styles.tableTitle}>
+          {getLabel("Latitude")}
+        </Subheading>
+        <Subheading style={styles.tableTitle}>
+          {getLabel("Longitude")}
+        </Subheading>
+      </View>
+    );
+  };
   return (
     <Portal>
       <Dialog
         visible={visible}
         onDismiss={() => onClose(false)}
-        style={{borderRadius: 16}}>
+        style={{ borderRadius: 16 }}
+      >
         <Text
           variant="titleLarge"
-          style={{textAlign: 'center', fontWeight: 'bold'}}>
-          Building Information
+          style={{ textAlign: "center", fontWeight: "bold" }}
+        >
+          {getLabel("Building Information")}
         </Text>
-        <Divider style={{marginTop: 16, marginBottom: 6}} />
-        {/* <Dialog.ScrollArea> */}
+        <Divider style={{ marginTop: 16, marginBottom: 6 }} />
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollArea}>
+          contentContainerStyle={styles.scrollArea}
+        >
           <TableHeader />
           {buildingCoords?.map((item, index) => {
             return (
@@ -51,28 +67,29 @@ const MapInfoModal = ({visible, onClose, onNext, buildingCoords}) => {
             );
           })}
         </ScrollView>
-        {/* </Dialog.ScrollArea> */}
-        {/* <Dialog.Actions> */}
         <View
           style={{
-            flexDirection: 'row',
-            justifyContent: 'flex-end',
+            flexDirection: "row",
+            justifyContent: "flex-end",
             paddingHorizontal: 38,
             marginBottom: 22,
-          }}>
-          <Button onPress={() => onClose(false)} style={{paddingHorizontal: 8}}>
-            Close
+          }}
+        >
+          <Button
+            onPress={() => onClose(false)}
+            style={{ paddingHorizontal: 8 }}
+          >
+            {getLabel("Close")}
           </Button>
           <HorizontalSpacer size={18} />
           <Button
             mode="contained"
             onPress={() => onNext()}
-            style={{borderRadius: 8}}>
-            Next
+            style={{ borderRadius: 8 }}
+          >
+            {getLabel("Next")}
           </Button>
         </View>
-
-        {/* </Dialog.Actions> */}
       </Dialog>
     </Portal>
   );
@@ -80,40 +97,29 @@ const MapInfoModal = ({visible, onClose, onNext, buildingCoords}) => {
 
 export default MapInfoModal;
 
-const TableHeader = () => {
-  return (
-    <View style={styles.tableHeader}>
-      <Subheading style={styles.tableTitle}>Marker</Subheading>
-
-      <Subheading style={styles.tableTitle}>Latitude</Subheading>
-      <Subheading style={styles.tableTitle}>Longitude</Subheading>
-    </View>
-  );
-};
-
 const styles = StyleSheet.create({
   scrollArea: {
     paddingBottom: SPACINGS.lg,
   },
 
   tableHeader: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
 
   tableTitle: {
     flex: 1,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     color: COLORS.primary,
   },
 
   singleCoord: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: "row",
   },
 
   txtCoord: {
-    width: '33.33%',
-    textAlign: 'center',
+    width: "33.33%",
+    textAlign: "center",
   },
 });
