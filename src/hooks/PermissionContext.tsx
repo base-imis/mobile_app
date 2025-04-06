@@ -4,24 +4,26 @@ import React, {
   useEffect,
   useState,
   useCallback,
-} from 'react';
-import {Platform, Alert} from 'react-native';
+} from "react";
+import { Platform, Alert } from "react-native";
 import {
   checkMultiple,
   requestMultiple,
   PERMISSIONS,
   RESULTS,
-} from 'react-native-permissions';
-import Geolocation from '@react-native-community/geolocation';
+} from "react-native-permissions";
+import Geolocation from "@react-native-community/geolocation";
 import {
   isLocationEnabled,
   promptForEnableLocationIfNeeded,
-} from 'react-native-android-location-enabler';
+} from "react-native-android-location-enabler";
+import { useSelector } from "react-redux";
 
 // Create a context for permission handling
 const PermissionContext = createContext({});
 
-export default function PermissionProvider({children}) {
+export default function PermissionProvider({ children }) {
+  const { contentsLabel } = useSelector((state) => state.auth);
   const REQUIRED_PERMISSIONS = Platform.select({
     android: [
       PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION,
@@ -34,15 +36,16 @@ export default function PermissionProvider({children}) {
   const [locationEnabled, setLocationEnabled] = useState(false);
   const [userPermissionDenied, setUserPermissionDenied] = useState(false);
 
-  console.log('PermissionStatus', permissionStatus);
-  console.log('locationEnabled', locationEnabled);
-  console.log('userPermissionDenied', userPermissionDenied);
+  console.log("PermissionStatus", permissionStatus);
+  console.log("locationEnabled", locationEnabled);
+  console.log("userPermissionDenied", userPermissionDenied);
 
+  const getLabel = (key) => contentsLabel?.[key] || key;
   // Check permissions and request if needed
   const checkPermissions = useCallback(async () => {
     const statuses = await checkMultiple(REQUIRED_PERMISSIONS);
     const allGranted = Object.values(statuses).every(
-      status => status === RESULTS.GRANTED,
+      (status) => status === RESULTS.GRANTED
     );
     setPermissionStatus(allGranted);
 
@@ -57,7 +60,7 @@ export default function PermissionProvider({children}) {
   const requestPermissions = useCallback(async () => {
     const statuses = await requestMultiple(REQUIRED_PERMISSIONS);
     const allGranted = Object.values(statuses).every(
-      status => status === RESULTS.GRANTED,
+      (status) => status === RESULTS.GRANTED
     );
     setPermissionStatus(allGranted);
 
@@ -70,7 +73,7 @@ export default function PermissionProvider({children}) {
 
   // Check if location services are enabled
   const checkLocationService = useCallback(async () => {
-    if (Platform.OS === 'android') {
+    if (Platform.OS === "android") {
       const isEnabled = await isLocationEnabled();
       setLocationEnabled(isEnabled);
 
@@ -85,18 +88,23 @@ export default function PermissionProvider({children}) {
 
   // Prompt user to enable location services
   const promptToEnableLocation = useCallback(async () => {
-    if (Platform.OS === 'android') {
+    if (Platform.OS === "android") {
       try {
         const result = await promptForEnableLocationIfNeeded();
-        if (result === 'enabled' || result === 'already-enabled') {
+        if (result === "enabled" || result === "already-enabled") {
           setLocationEnabled(true); // Set location enabled
           //   setupGeolocation(); // Retry geolocation after enabling location
         }
       } catch (error) {
         setUserPermissionDenied(true); // Set userPermissionDenied if the user denies enabling location services
         Alert.alert(
-          'Location Error',
-          'Unable to enable location services. Please try again.',
+          getLabel("Location Error"),
+          getLabel("Unable to enable location services. Please try again."),
+          [
+            {
+              text: getLabel("OK"),
+            },
+          ]
         );
       }
     }
@@ -129,7 +137,8 @@ export default function PermissionProvider({children}) {
         locationEnabled,
         userPermissionDenied,
         requestPermissions, // Allow manual permission request from context
-      }}>
+      }}
+    >
       {children}
     </PermissionContext.Provider>
   );
