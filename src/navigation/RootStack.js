@@ -1,38 +1,38 @@
-import React, {useState, useEffect} from 'react';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import React, { useState, useEffect } from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import {ROUTES} from '../core/constants/routes';
+import { ROUTES } from "../core/constants/routes";
 
-import HomeScreen from '../screens/root/HomeScreen';
-import AboutUsScreen from '../screens/root/AboutUsScreen';
-import ContainmentMap from '../screens/root/ContainmentMapScreen';
-import BuildingMapScreen from '../screens/root/BuildingMapScreen';
-import EmptyingServiceScreen from '../screens/root/EmptyingServiceScreen';
-import ContainmentAssessmentScreen from '../screens/root/ContainmentAssessmentScreen';
-import ContainmentDataScreen from '../screens/root/ContainmentDataScreen';
-import BuildingDataScreen from '../screens/root/BuildingDataScreen';
-import ApplicationListScreen from '../screens/root/ApplicationListScreen';
+import HomeScreen from "../screens/root/HomeScreen";
+import AboutUsScreen from "../screens/root/AboutUsScreen";
+import ContainmentMap from "../screens/root/ContainmentMapScreen";
+import BuildingMapScreen from "../screens/root/BuildingMapScreen";
+import EmptyingServiceScreen from "../screens/root/EmptyingServiceScreen";
+import ContainmentAssessmentScreen from "../screens/root/ContainmentAssessmentScreen";
+import ContainmentDataScreen from "../screens/root/ContainmentDataScreen";
+import BuildingDataScreen from "../screens/root/BuildingDataScreen";
+import ApplicationListScreen from "../screens/root/ApplicationListScreen";
 
-import HomeHeaderRight from '../components/home/HomeHeaderRight';
-import BuidingsMapHeaderRight from '../components/buildings_map/HeaderRight';
-import ContainmentMapHeaderRight from '../components/containment_map/HeaderRight';
-import LoadingSpinner from '../components/common/LoadingSpinner';
-import KmlViewerMapScreen from '../screens/root/KmlViewerMapScreen';
-import ContainmentViewerScreen from '../screens/root/ContainmentViewerScreen';
-import ApplicantMapScreen from '../screens/root/ApplicantMapScreen';
-import {COLORS} from '../core/theme';
-import LandApplicantListScreen from '../screens/root/LandApplicantListScreen';
-import LandOwnerDetailScreen from '../screens/root/LandOwnerDetailScreen';
-import BuildingSurveyScreen from '../screens/root/BuildingSurveyScreen';
-import EmptyingSubmissionScreen from '../screens/root/EmptyingSubmissionScreen';
-import SewageMapScreen from '../screens/root/SewageMapScreen';
-import SewageDataScreen from '../screens/root/SewageDataScreen';
-import BuildingMapDetials from '../screens/root/BuildingMapDetails';
-import EmptyingSubmissionScreen2 from '../screens/root/EmptyingSubmissionScreen2';
+import HomeHeaderRight from "../components/home/HomeHeaderRight";
+import BuidingsMapHeaderRight from "../components/buildings_map/HeaderRight";
+import ContainmentMapHeaderRight from "../components/containment_map/HeaderRight";
+import LoadingSpinner from "../components/common/LoadingSpinner";
+import KmlViewerMapScreen from "../screens/root/KmlViewerMapScreen";
+import ContainmentViewerScreen from "../screens/root/ContainmentViewerScreen";
+import ApplicantMapScreen from "../screens/root/ApplicantMapScreen";
+import { COLORS } from "../core/theme";
+import LandApplicantListScreen from "../screens/root/LandApplicantListScreen";
+import LandOwnerDetailScreen from "../screens/root/LandOwnerDetailScreen";
+import BuildingSurveyScreen from "../screens/root/BuildingSurveyScreen";
+import EmptyingSubmissionScreen from "../screens/root/EmptyingSubmissionScreen";
+import SewageMapScreen from "../screens/root/SewageMapScreen";
+import SewageDataScreen from "../screens/root/SewageDataScreen";
+import BuildingMapDetials from "../screens/root/BuildingMapDetails";
+import EmptyingSubmissionScreen2 from "../screens/root/EmptyingSubmissionScreen2";
 
-const {Screen, Navigator} = createNativeStackNavigator();
+const { Screen, Navigator } = createNativeStackNavigator();
 
-const RootStack = ({navigation}) => {
+const RootStack = ({ navigation }) => {
   const [visible, setVisible] = useState(false);
 
   const loadSpinner = () => {
@@ -54,7 +54,8 @@ const RootStack = ({navigation}) => {
           headerStyle: {
             backgroundColor: COLORS.primary,
           },
-        }}>
+        }}
+      >
         <Screen
           options={{
             headerShown: false,
@@ -92,7 +93,7 @@ const RootStack = ({navigation}) => {
         />
         <Screen
           options={{
-            title: 'Building Map Information',
+            title: "Building Map Information",
             headerShown: false,
             // headerRight: BuidingsMapHeaderRight,
           }}
@@ -101,7 +102,7 @@ const RootStack = ({navigation}) => {
         />
         <Screen
           options={{
-            title: 'Containment Map',
+            title: "Containment Map",
             headerRight: ContainmentMapHeaderRight,
           }}
           name={ROUTES.containment_map}
@@ -109,7 +110,7 @@ const RootStack = ({navigation}) => {
         />
         <Screen
           options={{
-            title: 'Buildings Data',
+            title: "Buildings Data",
             headerShown: false,
           }}
           name={ROUTES.building_data}
@@ -117,7 +118,7 @@ const RootStack = ({navigation}) => {
         />
         <Screen
           options={{
-            title: 'Containments Data',
+            title: "Containments Data",
             headerShown: false,
           }}
           name={ROUTES.containment_data}
@@ -125,7 +126,7 @@ const RootStack = ({navigation}) => {
         />
         <Screen
           options={{
-            title: 'Building location',
+            title: "Building location",
             headerShown: false,
             // headerRight: ContainmentMapHeaderRight,
           }}
@@ -134,8 +135,8 @@ const RootStack = ({navigation}) => {
         />
         <Screen
           options={{
-            title: 'Containment location',
-            headerShown: 'false',
+            title: "Containment location",
+            headerShown: "false",
             //headerRight: BuidingsMapHeaderRight,
           }}
           name={ROUTES.containment_viewer}
@@ -144,7 +145,7 @@ const RootStack = ({navigation}) => {
 
         <Screen
           options={{
-            title: 'Applicant location',
+            title: "Applicant location",
             headerShown: false,
             //headerRight: BuidingsMapHeaderRight,
           }}
@@ -157,26 +158,26 @@ const RootStack = ({navigation}) => {
         {/********* form survey/assessment *********/}
         <Screen
           options={{
-            title: 'Containment Assessment',
+            title: "Containment Assessment",
             headerShown: false,
           }}
           name={ROUTES.containment_assessment}
           component={ContainmentAssessmentScreen}
         />
-        <Screen
+        {/* <Screen
           options={{
             title: 'Emptying Service',
             headerShown: false,
           }}
           name={ROUTES.emptying_service}
           component={EmptyingServiceScreen}
-        />
+        /> */}
         {/********* end of form survey/assessment *********/}
 
         {/********* emptying service *********/}
         <Screen
           options={{
-            title: 'Application List',
+            title: "Application List",
             headerShown: false,
           }}
           name={ROUTES.application_list}
@@ -187,7 +188,7 @@ const RootStack = ({navigation}) => {
         {/********* land service *********/}
         <Screen
           options={{
-            title: 'Land',
+            title: "Land",
             headerShown: false,
           }}
           name={ROUTES.land_service}
@@ -196,7 +197,7 @@ const RootStack = ({navigation}) => {
 
         <Screen
           options={{
-            title: 'Detail',
+            title: "Detail",
             headerShown: false,
           }}
           name={ROUTES.land_detail}
@@ -204,7 +205,7 @@ const RootStack = ({navigation}) => {
         />
         <Screen
           options={{
-            title: 'Building survey form',
+            title: "Building survey form",
             headerShown: false,
           }}
           name={ROUTES.building_survey}
@@ -218,7 +219,7 @@ const RootStack = ({navigation}) => {
           component={EmptyingSubmissionScreen}
         /> */}
         <Screen
-          options={({route}) => ({
+          options={({ route }) => ({
             title: `Emptying service #${route?.params?.item?.id}`,
             headerShown: false,
           })}
@@ -226,8 +227,8 @@ const RootStack = ({navigation}) => {
           component={EmptyingSubmissionScreen}
         />
         <Screen
-          options={({route}) => ({
-            title: 'Sewer Map',
+          options={({ route }) => ({
+            title: "Sewer Map",
             headerShown: false,
             // headerRight: BuidingsMapHeaderRight,
           })}
@@ -235,8 +236,8 @@ const RootStack = ({navigation}) => {
           component={SewageMapScreen}
         />
         <Screen
-          options={({route}) => ({
-            title: 'Sewer Data',
+          options={({ route }) => ({
+            title: "Sewer Data",
             headerShown: false,
           })}
           name={ROUTES.sewage_data}

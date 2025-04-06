@@ -4,38 +4,23 @@ import {
   Portal,
   TextInput,
   HelperText,
-  Card,
-  IconButton,
-  Icon,
-  Text,
-  TouchableRipple,
 } from "react-native-paper";
 import builder from "xmlbuilder";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import RNFB from "react-native-blob-util";
-import {
-  Alert,
-  Dimensions,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { Alert, Platform, ScrollView, StyleSheet } from "react-native";
+import { useDispatch } from "react-redux";
 
 import { COLORS, SPACINGS } from "../../core/theme";
-
 import VerticalSpacer from "../common/VerticalSpacer";
 import HorizontalSpacer from "../common/HorizontalSpacer";
 import { askStoragePermission } from "../../helpers/permissions";
-import { useDispatch } from "react-redux";
 import { addBuildingsData } from "../../store/slices/map.slice";
-import { TouchableHighlight } from "react-native";
-import { launchCamera, launchImageLibrary } from "react-native-image-picker";
-import { Image } from "react-native";
-const { width } = Dimensions.get("window");
+
 const SaveDataModal = ({ visible, onClose, onDataSaved }) => {
   const dispatch = useDispatch();
+  const { contentsLabel } = useSelector((state) => state.auth);
   const { buildingCoords } = useSelector((state) => state.map);
   const defaultImage =
     "https://st3.depositphotos.com/23594922/31822/v/600/depositphotos_318221368-stock-illustration-missing-picture-page-for-website.jpg";
@@ -46,6 +31,7 @@ const SaveDataModal = ({ visible, onClose, onDataSaved }) => {
   const [buildingIdError, setBuildingIdError] = useState(null);
   const [taxCodeError, setTaxCodeError] = useState(null);
   const [assetError, setAssetError] = useState("");
+  const getLabel = (key) => contentsLabel?.[key] || key;
   const handleOnSave = () => {
     const isValid = validateData();
 
@@ -59,12 +45,12 @@ const SaveDataModal = ({ visible, onClose, onDataSaved }) => {
     setTaxCodeError(null);
 
     if (buildingId === "") {
-      setBuildingIdError("Temporary building code can not be empty!");
+      setBuildingIdError(getLabel("Temporary building code can not be empty!"));
       return false;
     }
 
     if (taxCode === "") {
-      setTaxCodeError("Tax code can not be empty!");
+      setTaxCodeError(getLabel("Tax Code can not be empty!"));
       return false;
     }
 
@@ -119,7 +105,15 @@ const SaveDataModal = ({ visible, onClose, onDataSaved }) => {
           };
           dispatch(addBuildingsData(payload));
 
-          Alert.alert("Saved", "Building data saved to local storage");
+          Alert.alert(
+            getLabel("Saved"),
+            getLabel("Building data saved to local storage"),
+            [
+              {
+                text: getLabel("OK"),
+              },
+            ]
+          );
         })
         .catch((error) => {
           console.log("Error", error);
@@ -146,7 +140,15 @@ const SaveDataModal = ({ visible, onClose, onDataSaved }) => {
           };
           dispatch(addBuildingsData(payload));
 
-          Alert.alert("Saved", "Building data saved to local storage");
+          Alert.alert(
+            getLabel("Saved"),
+            getLabel("Building data saved to local storage"),
+            [
+              {
+                text: getLabel("OK"),
+              },
+            ]
+          );
         })
         .catch((error) => {
           console.log("Error", error);
@@ -159,51 +161,50 @@ const SaveDataModal = ({ visible, onClose, onDataSaved }) => {
     });
   };
   const [asset, setAsset] = useState();
-  console.log("assetasset", asset);
-  const [houseImageDialog, setHouseImageDialog] = useState(false);
-  const option = {
-    mediaType: "photo",
-    cameraType: "back",
-    quality: 0.1,
-  };
-  const openCamera = () => {
-    launchCamera(option, (res) => {
-      if (res.didCancel) {
-        setHouseImageDialog(false);
-        return;
-      }
+  // const [houseImageDialog, setHouseImageDialog] = useState(false);
+  // const option = {
+  //   mediaType: "photo",
+  //   cameraType: "back",
+  //   quality: 0.1,
+  // };
+  // const openCamera = () => {
+  //   launchCamera(option, (res) => {
+  //     if (res.didCancel) {
+  //       setHouseImageDialog(false);
+  //       return;
+  //     }
 
-      if (res?.assets && res.assets[0]?.fileSize > 500000) {
-        Alert.alert(
-          "File size error",
-          "The image size exceeds 5 MB, please select lower size image."
-        );
-        return;
-      }
+  //     if (res?.assets && res.assets[0]?.fileSize > 500000) {
+  //       Alert.alert(
+  //         "File size error",
+  //         "The image size exceeds 5 MB, please select lower size image."
+  //       );
+  //       return;
+  //     }
 
-      setAsset(res.assets[0]);
-      setHouseImageDialog(false);
-    });
-  };
+  //     setAsset(res.assets[0]);
+  //     setHouseImageDialog(false);
+  //   });
+  // };
 
-  const openGallery = () => {
-    launchImageLibrary(option, (res) => {
-      if (res.didCancel) {
-        setHouseImageDialog(false);
+  // const openGallery = () => {
+  //   launchImageLibrary(option, (res) => {
+  //     if (res.didCancel) {
+  //       setHouseImageDialog(false);
 
-        if (res?.assets && res.assets[0]?.fileSize > 500000) {
-          Alert.alert(
-            "File size error",
-            "The image size exceeds 5 MB, please try again"
-          );
-          return;
-        }
-      }
+  //       if (res?.assets && res.assets[0]?.fileSize > 500000) {
+  //         Alert.alert(
+  //           "File size error",
+  //           "The image size exceeds 5 MB, please try again"
+  //         );
+  //         return;
+  //       }
+  //     }
 
-      setAsset(res.assets[0]);
-      setHouseImageDialog(false);
-    });
-  };
+  //     setAsset(res.assets[0]);
+  //     setHouseImageDialog(false);
+  //   });
+  // };
   return (
     <Portal>
       <Dialog
@@ -211,7 +212,7 @@ const SaveDataModal = ({ visible, onClose, onDataSaved }) => {
         onDismiss={() => onClose(false)}
         style={{ borderRadius: 16 }}
       >
-        <Dialog.Title>Save Building Info</Dialog.Title>
+        <Dialog.Title>{getLabel("Save Building Info")}</Dialog.Title>
         <Dialog.ScrollArea>
           <ScrollView
             showsVerticalScrollIndicator={false}
@@ -223,7 +224,7 @@ const SaveDataModal = ({ visible, onClose, onDataSaved }) => {
               value={buildingId}
               onChangeText={setBuildingId}
               error={buildingIdError ? true : false}
-              label={"Temporary Building Code"}
+              label={getLabel("Temporary Building Code")}
             />
             {buildingIdError && (
               <HelperText style={styles.errorText}>
@@ -234,7 +235,7 @@ const SaveDataModal = ({ visible, onClose, onDataSaved }) => {
             <TextInput
               mode="outlined"
               value={taxCode}
-              label={"Tax code"}
+              label={getLabel("Tax Code")}
               onChangeText={setTaxCode}
               error={taxCodeError ? true : false}
             />
@@ -245,10 +246,10 @@ const SaveDataModal = ({ visible, onClose, onDataSaved }) => {
           </ScrollView>
         </Dialog.ScrollArea>
         <Dialog.Actions>
-          <Button onPress={() => onClose(false)}>Close</Button>
+          <Button onPress={() => onClose(false)}>{getLabel("Close")}</Button>
           <HorizontalSpacer size={18} />
           <Button mode="contained" onPress={handleOnSave}>
-            Save
+            {getLabel("Save")}
           </Button>
           <HorizontalSpacer />
         </Dialog.Actions>
