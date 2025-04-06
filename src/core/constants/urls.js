@@ -20,6 +20,10 @@ export const URLS = {
   buildingCode: "buildingcode",
   saveSewerData: "save-sewerconnection",
   logout: "logout",
+
+  //LanguageTranslation
+  getLanguages: "language/languages",
+  getContentsLabel: "language/translations",
 };
 
 export const defaultImage =

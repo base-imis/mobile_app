@@ -1,4 +1,4 @@
-import {createSlice} from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   token: null,
@@ -9,29 +9,43 @@ const initialState = {
   username: null,
   account: null,
   permissions: null,
+  currentLanguage: "",
+  contentsLabel: null,
+  languages: null,
 };
 
 const authSlice = createSlice({
-  name: 'punchStatus',
+  name: "punchStatus",
   initialState,
   reducers: {
-    storeUsername: (state, {payload}) => {
+    storeUsername: (state, { payload }) => {
       state.username = payload;
     },
 
-    storeAccount: (state, {payload}) => {
+    storeAccount: (state, { payload }) => {
       state.account = payload;
     },
 
-    storePermissions: (state, {payload}) => {
+    storePermissions: (state, { payload }) => {
       state.permissions = payload;
     },
 
-    storeToken: (state, {payload}) => {
+    storeToken: (state, { payload }) => {
       state.token = payload;
     },
 
-    resetToken: state => {
+    setCurrentLang: (state, { payload }) => {
+      state.currentLanguage = payload;
+    },
+
+    setContentsLabel: (state, { payload }) => {
+      state.contentsLabel = payload;
+    },
+    setLanguages: (state, { payload }) => {
+      state.languages = payload;
+    },
+
+    resetToken: (state) => {
       state.token = null;
     },
   },
@@ -43,5 +57,8 @@ export const {
   storeAccount,
   storeUsername,
   storePermissions,
+  setCurrentLang,
+  setContentsLabel,
+  setLanguages,
 } = authSlice.actions;
 export default authSlice.reducer;

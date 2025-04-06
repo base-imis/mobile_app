@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 import { useFormik } from "formik";
 import { useState } from "react";
 import { Alert, ToastAndroid } from "react-native";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ROUTES } from "../core/constants/routes";
 import { defaultImage, URLS } from "../core/constants/urls";
 import { getCurrentLocation } from "../helpers/location";
@@ -20,6 +20,9 @@ import { BASE_URL_ENV } from "../constants/config";
 import axios from "axios";
 
 const useEmptying = (application) => {
+  const { contentsLabel } = useSelector((state) => state.auth);
+
+  const getLabel = (key) => contentsLabel?.[key] || key;
   const initialValues = {
     date: new Date(),
     volume_of_sludge: "",
@@ -76,14 +79,25 @@ const useEmptying = (application) => {
       })
       .catch((e) => {
         if (e.response.status === 401) {
-          Alert.alert("401", "Please log in again.");
+          Alert.alert(getLabel("401"), getLabel("Please log in again."), [
+            {
+              text: getLabel("OK"),
+            },
+          ]);
           dispatch(resetToken());
           return;
         }
         if (e.response.status === 500) {
           Alert.alert(
-            "500",
-            "Something is wrong, please try again or at a later time."
+            getLabel("500"),
+            getLabel(
+              "Something is wrong, please try again or at a later time."
+            ),
+            [
+              {
+                text: getLabel("OK"),
+              },
+            ]
           );
         }
       });
@@ -104,14 +118,25 @@ const useEmptying = (application) => {
       })
       .catch((e) => {
         if (e.response.status === 401) {
-          Alert.alert("401", "Please log in again.");
+          Alert.alert(getLabel("401"), getLabel("Please log in again."), [
+            {
+              text: getLabel("OK"),
+            },
+          ]);
           dispatch(resetToken());
           return;
         }
         if (e.response.status === 500) {
           Alert.alert(
-            "500",
-            "Something is wrong, please try again or at a later time."
+            getLabel("500"),
+            getLabel(
+              "Something is wrong, please try again or at a later time."
+            ),
+            [
+              {
+                text: getLabel("OK"),
+              },
+            ]
           );
         }
       });
@@ -128,14 +153,25 @@ const useEmptying = (application) => {
       })
       .catch((e) => {
         if (e.response.status === 401) {
-          Alert.alert("401", "Please log in again.");
+          Alert.alert(getLabel("401"), getLabel("Please log in again."), [
+            {
+              text: getLabel("OK"),
+            },
+          ]);
           dispatch(resetToken());
           return;
         }
         if (e.response.status === 500) {
           Alert.alert(
-            "500",
-            "Something is wrong, please try again or at a later time."
+            getLabel("500"),
+            getLabel(
+              "Something is wrong, please try again or at a later time."
+            ),
+            [
+              {
+                text: getLabel("OK"),
+              },
+            ]
           );
         }
       });
@@ -158,8 +194,15 @@ const useEmptying = (application) => {
         }
         if (e.response.status === 500) {
           Alert.alert(
-            "500",
-            "Something is wrong, please try again or at a later time."
+            getLabel("500"),
+            getLabel(
+              "Something is wrong, please try again or at a later time."
+            ),
+            [
+              {
+                text: getLabel("OK"),
+              },
+            ]
           );
         }
       });
@@ -182,8 +225,15 @@ const useEmptying = (application) => {
         }
         if (e.response.status === 500) {
           Alert.alert(
-            "500",
-            "Something is wrong, please try again or at a later time."
+            getLabel("500"),
+            getLabel(
+              "Something is wrong, please try again or at a later time."
+            ),
+            [
+              {
+                text: getLabel("OK"),
+              },
+            ]
           );
         }
       });
@@ -197,26 +247,32 @@ const useEmptying = (application) => {
 
       // Example validation for empty fields
       if (!values.service_receiver_name) {
-        errors.service_receiver_name = "Service receiver name is required.";
+        errors.service_receiver_name =
+          contentsLabel?.["The Service Receiver Name is required."] ||
+          "The Service Receiver Name is required.";
       }
       if (!values.service_receiver_gender) {
-        errors.service_receiver_gender = "Service receiver gender is required.";
+        errors.service_receiver_gender =
+          contentsLabel?.["The Service Receiver Gender is required."] ||
+          "The Service Receiver Gender is required.";
       }
       if (!values.service_receiver_contact) {
         errors.service_receiver_contact =
-          "Service receiver contact is required.";
+          contentsLabel?.["The Service Receiver Contact Number is required."] ||
+          "The Service Receiver Contact Number is required.";
       }
 
-      if (!values.treatment_plant_id) {
-        errors.treatment_plant_id = "Treatment plant ID is required.";
-      }
       if (!values.emptying_reason) {
-        errors.emptying_reason = "Emptying reason is required.";
+        errors.emptying_reason =
+          contentsLabel?.["The reason for emptying is required."] ||
+          "The reason for emptying is required.";
       }
       if (!values.volume_of_sludge) {
-        errors.volume_of_sludge = "Volume of sludge is required.";
+        errors.volume_of_sludge =
+          contentsLabel?.["Sludge Volume is required."] ||
+          "Sludge Volume is required.";
       }
-      console.log("Application111sasad", application);
+
       // Validate volume_of_sludge against application.size
       if (application?.containment_size) {
         if (application.containment_size.startsWith("{")) {
@@ -228,7 +284,13 @@ const useEmptying = (application) => {
           const totalSize = sizes.reduce((acc, size) => acc + size, 0); // Sum of all sizes
 
           if (parseFloat(values.volume_of_sludge) > totalSize) {
-            errors.volume_of_sludge = `Volume of sludge cannot be more than ${totalSize}.`;
+            errors.volume_of_sludge = contentsLabel?.[
+              "Volume of sludge cannot be more than 1.37."
+            ]
+              ? contentsLabel[
+                  "Volume of sludge cannot be more than 1.37."
+                ].replace("1.37", totalSize)
+              : `Volume of sludge cannot be more than ${totalSize}.`;
           }
         } else {
           // Handle single size
@@ -236,7 +298,13 @@ const useEmptying = (application) => {
             parseFloat(values.volume_of_sludge) >
             parseFloat(application.containment_size)
           ) {
-            errors.volume_of_sludge = `Volume of sludge cannot be more than ${application.containment_size}.`;
+            errors.volume_of_sludge = contentsLabel?.[
+              "Volume of sludge cannot be more than 1.37."
+            ]
+              ? contentsLabel[
+                  "Volume of sludge cannot be more than 1.37."
+                ].replace("1.37", application.containment_size)
+              : `Volume of sludge cannot be more than ${application.containment_size}.`;
           }
         }
       }
@@ -244,38 +312,60 @@ const useEmptying = (application) => {
       //   errors.volume_of_sludge = `Volume of sludge cannot be more than ${application?.size}.`;
       // }
       if (!values.desludging_vehicle_id) {
-        errors.desludging_vehicle_id = "Desludging vehicle ID is required.";
+        errors.desludging_vehicle_id =
+          contentsLabel?.["The Desludging Vehicle Number Plate is required."] ||
+          "The Desludging Vehicle Number Plate is required.";
       }
       if (!values.treatment_plant_id) {
-        errors.treatment_plant_id = "Treatment plant ID is required.";
+        errors.treatment_plant_id =
+          contentsLabel?.["The Disposal Place is required."] ||
+          "The Disposal Place is required.";
       }
       if (!values.driver) {
-        errors.driver = "Driver is required.";
+        errors.driver =
+          contentsLabel?.["The Driver Name is required."] ||
+          "The Driver Name is required.";
       }
       if (!values.emptier1) {
-        errors.emptier1 = "Emptier 1 is required.";
+        errors.emptier1 =
+          contentsLabel?.["The emptier1 name is required."] ||
+          "The emptier1 name is required.";
       }
 
       if (!values.start_time) {
-        errors.start_time = "Start time is required.";
+        errors.start_time =
+          contentsLabel?.["The Start Time is required."] ||
+          "The Start Time is required.";
       }
       if (!values.end_time) {
-        errors.end_time = "End time is required.";
+        errors.end_time =
+          contentsLabel?.["The End Time is required."] ||
+          "The End Time is required.";
       }
       if (!values.no_of_trips) {
-        errors.no_of_trips = "Number of trips is required.";
+        errors.no_of_trips =
+          contentsLabel?.["The number of trips is required."] ||
+          "The number of trips is required.";
       }
       if (!values.receipt_number) {
-        errors.receipt_number = "Receipt number is required.";
+        errors.receipt_number =
+          contentsLabel?.["The Receipt Number is required."] ||
+          "The Receipt Number is required.";
       }
       if (!values.total_cost) {
-        errors.total_cost = "Total cost is required.";
+        errors.total_cost =
+          contentsLabel?.["The Total Cost is required."] ||
+          "The Total Cost is required.";
       }
       if (application?.image_status == "false" && !values.house_image) {
-        errors.house_image = "House image is required.";
+        errors.house_image =
+          contentsLabel?.["The House Image must be an image file."] ||
+          "The House Image must be an image file.";
       }
       if (!values.receipt_image) {
-        errors.receipt_image = "Receipt image is required.";
+        errors.receipt_image =
+          contentsLabel?.["The Receipt Image is required."] ||
+          "The Receipt Image is required.";
       }
       // if (!!errors) {
       //   console.log("eRRORSSADSASDAS", errors.length);
@@ -367,7 +457,11 @@ const useEmptying = (application) => {
         });
         if (res?.status === 200) {
           const message = res?.data?.message;
-          Alert.alert("Success", message);
+          Alert.alert(getLabel("Success"), message, [
+            {
+              text: getLabel("OK"),
+            },
+          ]);
           navigation.goBack();
         }
       } catch (error) {
@@ -386,9 +480,17 @@ const useEmptying = (application) => {
               .flat() // Flatten the array to handle multiple messages per key
               .join("\n"); // Separate each message with a new line
 
-            Alert.alert("Error", `${errorMessages}`); // Combine main message and error details
+            Alert.alert(getLabel("Error"), `${errorMessages}`, [
+              {
+                text: getLabel("OK"),
+              },
+            ]); // Combine main message and error details
           } else {
-            Alert.alert("Error", message); // Show main message only if no specific errors
+            Alert.alert(getLabel("Error"), message, [
+              {
+                text: getLabel("OK"),
+              },
+            ]); // Show main message only if no specific errors
           }
         }
       }
@@ -418,11 +520,11 @@ const useEmptying = (application) => {
         formik.setFieldValue("longitude", position.coords.longitude);
       } catch (err) {
         Alert.alert(
-          "Error",
-          "Please allow access to location in order to proceed.",
+          getLabel("Error"),
+          getLabel("Please allow access to location in order to proceed."),
           [
             {
-              text: "OK",
+              text: getLabel("OK"),
               onPress: () => navigation.goBack(),
             },
           ]

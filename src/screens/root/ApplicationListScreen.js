@@ -17,7 +17,7 @@ import {
   assessmentService,
   emptyingService,
 } from "../../service/supervisor_service";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { resetToken } from "../../store/slices/auth.slice";
 import ApplicationListCard from "../../components/common/ApplicationListCard";
 import { List } from "react-native-paper";
@@ -121,10 +121,11 @@ export default function ApplicationListScreen({ navigation, route }) {
 
     Linking.openURL(url);
   };
-
+  const { contentsLabel } = useSelector((state) => state.auth);
+  const getLabel = (key) => contentsLabel?.[key] || key;
   return (
     <View style={styles.container}>
-      <Header title="Application List" />
+      <Header title={getLabel("Application List")} />
       {!!isLoading ? (
         <PrimarySpinner />
       ) : data.length > 0 ? (
@@ -150,7 +151,9 @@ export default function ApplicationListScreen({ navigation, route }) {
       ) : (
         // </List.Section>
         <ErrorMessage
-          message={"No suitable applications available for this service."}
+          message={getLabel(
+            "No suitable applications available for this service."
+          )}
         />
       )}
     </View>
