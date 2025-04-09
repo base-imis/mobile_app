@@ -9,13 +9,13 @@ import {
   View,
 } from "react-native";
 import React, { useRef, useEffect, useState, useCallback } from "react";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { Marker, Polygon, WMSTile } from "react-native-maps";
+import IonIcon from "react-native-vector-icons/Ionicons";
+import { getDistance } from "geolib";
 
 import { COLORS } from "../../core/theme";
 
 import {
-  updateBuildingCoord,
   resetBuildingCoords,
   addBuildingCoordsData,
 } from "../../store/slices/map.slice";
@@ -32,30 +32,22 @@ import {
 } from "../../service/building_service";
 import WmsView from "../../components/common/WmsView";
 
-import IonIcon from "react-native-vector-icons/Ionicons";
-
-import { getDistance } from "geolib";
-
 import MapComponent from "../../components/mapcomponent/MapComponent";
 import { usePermissionContext } from "../../hooks/PermissionContext";
 import { ErrorMessage } from "../../components/errorComponent";
 import { Header } from "../../components/headers";
-const width = Dimensions.get("screen").width;
-const BuildingMapScreen = ({ navigation }) => {
+
+const BuildingMapScreen = () => {
+  const { contentsLabel } = useSelector((state) => state.auth);
   const { permissionStatus, locationEnabled, requestPermissions } =
     usePermissionContext();
-  const { buildingCoords, mapType } = useSelector((state) => state.map);
-
-  console.log("PermissionStatus", permissionStatus, locationEnabled);
+  const { buildingCoords } = useSelector((state) => state.map);
   const dispatch = useDispatch();
   // INITIAL_LOCATION
   const [location, setLocation] = useState();
-  console.log("locsssation!!", location);
-
   const [isInfoModalVisible, setisInfoModalVisible] = useState(false);
   const [isSaveModalVisible, setIsSaveModalVisible] = useState(false);
   const [buildingCoordsState, setBuildingCoordsState] = useState([]);
-  console.log("BuildingCoordsState", buildingCoordsState);
 
   const [showWmsLink, setShowWmsLink] = useState(true);
   const [roadWms, setRoadWms] = useState(true);
@@ -70,7 +62,6 @@ const BuildingMapScreen = ({ navigation }) => {
   const fetchLocation = useCallback(async () => {
     try {
       const response = await getCurrentLocation(true); // Fetch location
-      console.log("Coordinateddsss", response);
       if (response && response.coords) {
         setLocation(response.coords); // Set location state if available
       } else {
@@ -113,9 +104,7 @@ const BuildingMapScreen = ({ navigation }) => {
   const getWmsLink = () => {
     getBuildingWmslink()
       .then((response) => {
-        const { success, data, error } = response.data;
-
-        console.log("wms", response.data.baseUrl + data.buildings);
+        const { data } = response.data;
 
         setWmslink(response.data.baseUrl + data.buildings);
       })
@@ -134,10 +123,7 @@ const BuildingMapScreen = ({ navigation }) => {
   const roadLink = () => {
     getRoadWmsLink()
       .then((response) => {
-        const { success, data, error } = response.data;
-
-        console.log("road", response.data);
-
+        const { data } = response.data;
         setRoadWmsLink(response.data.baseUrl + data.roads);
       })
       .catch((err) => {
@@ -171,7 +157,6 @@ const BuildingMapScreen = ({ navigation }) => {
 
   const markerPressedRef = useRef(false);
 
-  console.log("buildingCoords", buildingCoords);
   const handlePressOnMap = (event) => {
     if (!markerPressedRef.current) {
       const { latitude, longitude } = event.nativeEvent.coordinate;
@@ -180,50 +165,52 @@ const BuildingMapScreen = ({ navigation }) => {
     markerPressedRef.current = false;
   };
 
-  const renderMarkers = (coordinate, index) => {
-    const distance = index > 0 ? coordinate.distance : 0;
-    return (
-      <Marker
-        key={index}
-        coordinate={coordinate}
-        draggable
-        onDragStart={handleMarkerDragStart}
-        onDragEnd={(event) => {
-          setDragging(false);
-          onDragEnd(index, event);
-        }}
-        onPress={() => handlePressOnMarker(index)}
-      >
-        <View style={{ position: "relative" }}>
-          <View
-            style={{
-              backgroundColor: "#FFFFFF",
-              position: "absolute",
-              zIndex: 1,
-              top: 7,
-              left: 13,
-              height: 26,
-              width: 26,
-              borderRadius: 24,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          ></View>
-          <Icon name="map-marker" size={52} color={COLORS.primary} />
-        </View>
-      </Marker>
-    );
-  };
+  // const renderMarkers = (coordinate, index) => {
+  //   const distance = index > 0 ? coordinate.distance : 0;
+  //   return (
+  //     <Marker
+  //       key={index}
+  //       coordinate={coordinate}
+  //       draggable
+  //       onDragStart={handleMarkerDragStart}
+  //       onDragEnd={(event) => {
+  //         setDragging(false);
+  //         onDragEnd(index, event);
+  //       }}
+  //       onPress={() => handlePressOnMarker(index)}
+  //     >
+  //       <View style={{ position: "relative" }}>
+  //         <View
+  //           style={{
+  //             backgroundColor: "#FFFFFF",
+  //             position: "absolute",
+  //             zIndex: 1,
+  //             top: 7,
+  //             left: 13,
+  //             height: 26,
+  //             width: 26,
+  //             borderRadius: 24,
+  //             justifyContent: "center",
+  //             alignItems: "center",
+  //           }}
+  //         ></View>
+  //         <Icon name="map-marker" size={52} color={COLORS.primary} />
+  //       </View>
+  //     </Marker>
+  //   );
+  // };
 
   const handlePressOnMarker = (index) => {
     markerPressedRef.current = true;
     const markerNum = index + 1;
     Alert.alert(
-      "Delete",
-      `Are you sure you want to remove marker number ${markerNum} from the map?`,
+      getLabel("DELETE"),
+      getLabel(
+        "Are you sure you want to remove marker number 1 from the map?"
+      ).replace("1", markerNum),
       [
         {
-          text: "Yes",
+          text: getLabel("YES"),
           onPress: () => {
             setBuildingCoordsState(
               buildingCoordsState.filter((_, i) => i !== index)
@@ -231,7 +218,7 @@ const BuildingMapScreen = ({ navigation }) => {
           },
         },
         {
-          text: "Cancel",
+          text: getLabel("CANCEL"),
         },
       ]
     );
@@ -271,15 +258,17 @@ const BuildingMapScreen = ({ navigation }) => {
     setDragging(true);
   };
 
-  const handleMarkerDragEnd = (index, event) => {
-    setDragging(false);
-    // handleMarkerDrag(index, event);
-  };
+  // const handleMarkerDragEnd = (index, event) => {
+  //   setDragging(false);
+  //   // handleMarkerDrag(index, event);
+  // };
+
+  const getLabel = (key) => contentsLabel?.[key] || key;
 
   return (
     <View style={styles.container}>
       <Header
-        title="Building Map"
+        title={getLabel("Building Map")}
         showRemoveMarker={locationEnabled && permissionStatus && location}
         showMapStyle={locationEnabled && permissionStatus && location}
       />
@@ -289,12 +278,9 @@ const BuildingMapScreen = ({ navigation }) => {
             handleMarkerPress={handlePressOnMap}
             markerdrag={!dragging}
           >
-            {/* {buildingCoordsState.map(renderMarkers)} */}
             {buildingCoordsState.map((marker, index) => (
               <Marker
                 zIndex={marker.zIndex}
-                onDoublePress={() => console.log("Pressed!!!")}
-                onLongPress={() => console.log("Pressed!!!")}
                 draggable
                 poiClickEnabled={false}
                 onDragStart={handleMarkerDragStart}
@@ -313,7 +299,6 @@ const BuildingMapScreen = ({ navigation }) => {
                   style={{
                     width: marker.width,
                     height: marker.height,
-                    // backgroundColor: 'red',
                   }}
                 >
                   <Image
@@ -403,7 +388,6 @@ const BuildingMapScreen = ({ navigation }) => {
               />
             )}
           </MapComponent>
-          {/* </MapView> */}
 
           <MapInfoButton
             onPress={() => {
@@ -435,14 +419,9 @@ const BuildingMapScreen = ({ navigation }) => {
 
           <MapInfoModal
             buildingCoords={buildingCoordsState}
-            // distanceData={midpoints}
             visible={isInfoModalVisible}
             onClose={setisInfoModalVisible}
             onNext={showSaveDataModal}
-            // onNext={() => {
-            //   setisInfoModalVisible(false);
-            //   navigation.navigate(ROUTES.building_survey);
-            // }}
           />
           <SaveDataModal
             visible={isSaveModalVisible}
@@ -451,7 +430,7 @@ const BuildingMapScreen = ({ navigation }) => {
           />
         </>
       ) : (
-        <ErrorMessage message={"Error: Location Permission Denied"} />
+        <ErrorMessage message={getLabel("Error: Location Permission Denied")} />
       )}
     </View>
   );

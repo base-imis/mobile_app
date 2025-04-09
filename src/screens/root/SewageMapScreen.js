@@ -1,19 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Alert, Platform, StyleSheet, View } from "react-native";
-import MapView, {
-  Callout,
-  Marker,
-  PROVIDER_GOOGLE,
-  Polygon,
-  Polyline,
-  WMSTile,
-} from "react-native-maps";
-import { Badge, FAB, Text } from "react-native-paper";
+import { Marker, WMSTile } from "react-native-maps";
+import { FAB, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useDispatch, useSelector } from "react-redux";
 
-import { INITIAL_LOCATION } from "../../core/constants/map";
-import { ROUTES } from "../../core/constants/routes";
 import { COLORS } from "../../core/theme";
 
 import { getCurrentLocation } from "../../helpers/location";
@@ -22,28 +13,20 @@ import {
   askStoragePermission,
 } from "../../helpers/permissions";
 import {
-  addToBuildingCoords,
   removeFromBuildingCoords,
   resetBuildingCoords,
   updateBuildingCoord,
 } from "../../store/slices/map.slice";
 
 import MapInfoModal from "../../components/buildings_map/MapInfoModal";
-import SaveDataModal from "../../components/buildings_map/SaveDataModal";
-import WmsView from "../../components/common/WmsView";
 import {
-  getBuildings,
   getBuildingWmslink,
   getRoadWmsLink,
-  getSewerCode,
   getSewerWmsLink,
   getWardWmsLink,
 } from "../../service/building_service";
 
 import IonIcon from "react-native-vector-icons/Ionicons";
-import { resetToken } from "../../store/slices/auth.slice";
-
-import { getDistance, getDistanceFromLine, isPointInPolygon } from "geolib";
 
 import { MAP_TYPES } from "react-native-maps";
 import SewerWMSView from "../../components/common/SewerWMSView";
@@ -63,9 +46,6 @@ const SewageMapScreen = ({ navigation }) => {
   const [isInfoModalVisible, setisInfoModalVisible] = useState(false);
   const [isSaveModalVisible, setIsSaveModalVisible] = useState(false);
   const { buildingCoords, mapType } = useSelector((state) => state.map);
-
-  const [textCoords, setTestCoords] = useState([buildingCoords]);
-  console.log("textCoords", textCoords);
 
   const [wmslinks, setWmslink] = useState();
   ***REMOVED***,
@@ -468,11 +448,12 @@ const SewageMapScreen = ({ navigation }) => {
     setIsSaveModalVisible(false);
     setisInfoModalVisible(false);
   };
-
+  const { contentsLabel } = useSelector((state) => state.auth);
+  const getLabel = (key) => contentsLabel?.[key] || key;
   return (
     <View style={styles.container}>
       <Header
-        title="Sewer Map"
+        title={getLabel("Sewer Map")}
         showMapStyle={locationEnabled && permissionStatus && location}
         showRemoveMarker={false}
       />
@@ -640,7 +621,7 @@ const SewageMapScreen = ({ navigation }) => {
           />
         </>
       ) : (
-        <ErrorMessage message={"Error: Location Permission Denied"} />
+        <ErrorMessage message={getLabel("Error: Location Permission Denied")} />
       )}
     </View>
   );

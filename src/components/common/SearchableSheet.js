@@ -7,6 +7,7 @@ import React, { memo, useCallback, useMemo, useRef, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { Divider, Portal, Text, TextInput, Title } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { useSelector } from "react-redux";
 
 const SearchableSheet = ({
   mode = "flat",
@@ -20,6 +21,8 @@ const SearchableSheet = ({
   onClearPress,
   onChangeText,
 }) => {
+  const { contentsLabel } = useSelector((state) => state.auth);
+  const getLabel = (key) => contentsLabel?.[key] || key;
   const [query, setQuery] = useState("");
 
   const ref = useRef(null);
@@ -89,11 +92,11 @@ const SearchableSheet = ({
                 }
               }}
             >
-              <Text style={{ fontWeight: "bold" }}>Clear</Text>
+              <Text style={{ fontWeight: "bold" }}>{getLabel("Clear")}</Text>
             </Pressable>
           </BottomSheetView>
           <TextInput
-            placeholder="Search"
+            placeholder={getLabel("Search")}
             underlineStyle={{
               display: "none",
             }}

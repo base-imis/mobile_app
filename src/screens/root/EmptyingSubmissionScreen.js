@@ -24,10 +24,12 @@ import LoadingView from "../../components/common/LoadingView";
 import colors, { lightTheme } from "../../core/theme/colors";
 import { EmptyingFieldsEnum } from "../../constants/enum";
 import { Header } from "../../components/headers";
+import { useSelector } from "react-redux";
 
 const mode = "outlined";
 
 const EmptyingSubmissionScreen = ({ route }) => {
+  const { contentsLabel } = useSelector((state) => state.auth);
   const [dateOpen, setDateOpen] = useState(false);
   const [timeOpen, setTimeOpen] = useState(false);
   const [endTimeOpen, setEndTimeOpen] = useState(false);
@@ -37,6 +39,8 @@ const EmptyingSubmissionScreen = ({ route }) => {
   });
 
   const { item } = route.params;
+
+  const getLabel = (key) => contentsLabel?.[key] || key;
 
   const {
     formik,
@@ -100,7 +104,7 @@ const EmptyingSubmissionScreen = ({ route }) => {
 
   const option = {
     mediaType: "photo",
-    quality: 0.1,
+    quality: 0.3,
     cameraType: "back",
     saveToPhotos: true,
   };
@@ -108,22 +112,30 @@ const EmptyingSubmissionScreen = ({ route }) => {
   const openCamera = (setFieldValue) => {
     launchCamera(option, (res) => {
       if (res.didCancel) return;
-
-      if (res.assets[0].fileSize > 500000) {
+      const fileSizeInMB = (res.assets[0].fileSize / (1024 * 1024)).toFixed(2);
+      if (res.assets[0].type === "image/png") {
         Alert.alert(
-          "File size error",
-          "The image size exceeds 5 MB, please try again."
+          getLabel("File format error"),
+          getLabel("The image must be in jpg format, please try again."),
+          [
+            {
+              text: getLabel("OK"),
+            },
+          ]
         );
         return;
-      } else if (res.assets[0].type === "image/png") {
+      } else if (fileSizeInMB > 5) {
         Alert.alert(
-          "File format error",
-          "The image must be in jpg format, please try again."
+          getLabel("File size error"),
+          getLabel("The image size exceeds 5 MB, please try again."),
+          [
+            {
+              text: getLabel("OK"),
+            },
+          ]
         );
         return;
       }
-
-      console.log("assss", res.assets[0].fileName);
 
       setFieldValue(image.name, res.assets[0]);
     });
@@ -133,16 +145,26 @@ const EmptyingSubmissionScreen = ({ route }) => {
     launchImageLibrary(option, (res) => {
       if (res.didCancel) return;
 
-      if (res.assets[0].fileSize > 500000) {
+      if (res.assets[0].type === "image/png") {
         Alert.alert(
-          "File size error",
-          "The image size exceeds 5 MB, please try again."
+          getLabel("File format error"),
+          getLabel("The image must be in jpg format, please try again."),
+          [
+            {
+              text: getLabel("OK"),
+            },
+          ]
         );
         return;
-      } else if (res.assets[0].type === "image/png") {
+      } else if (fileSizeInMB > 5) {
         Alert.alert(
-          "File format error",
-          "The image must be in jpg format, please try again."
+          getLabel("File size error"),
+          getLabel("The image size exceeds 5 MB, please try again."),
+          [
+            {
+              text: getLabel("OK"),
+            },
+          ]
         );
         return;
       }
@@ -153,11 +175,16 @@ const EmptyingSubmissionScreen = ({ route }) => {
 
   return (
     <View style={styles.mainCOntainer}>
-      <Header title={`Emptying service #${route?.params?.item?.id}`} />
+      <Header
+        title={`${getLabel("Emptying Service")} #${route?.params?.item?.id}`}
+      />
       <ScrollView style={styles.container}>
         <View style={{ gap: 12, paddingHorizontal: 4 }}>
           <TextInput
-            label={EmptyingFieldsEnum.Date}
+            label={
+              contentsLabel?.[EmptyingFieldsEnum.Date] ||
+              EmptyingFieldsEnum.Date
+            }
             editable={false}
             value={dayjs(date).format("DD MMMM YYYY")}
           />
@@ -175,7 +202,10 @@ const EmptyingSubmissionScreen = ({ route }) => {
             }}
           />
           <TextInput
-            label={EmptyingFieldsEnum.ServiceReciverName}
+            label={
+              contentsLabel?.[EmptyingFieldsEnum.ServiceReciverName] ||
+              EmptyingFieldsEnum.ServiceReciverName
+            }
             value={service_receiver_name}
             error={errors.service_receiver_name}
             onChangeText={handleChange("service_receiver_name")}
@@ -203,13 +233,25 @@ const EmptyingSubmissionScreen = ({ route }) => {
               }
             >
               <Picker.Item
-                label={EmptyingFieldsEnum.SelectReceiverGender}
+                label={
+                  contentsLabel?.[EmptyingFieldsEnum.SelectReceiverGender] ||
+                  EmptyingFieldsEnum.SelectReceiverGender
+                }
                 value=""
                 color="#767A7D"
               />
-              <Picker.Item label="Male" value="male" />
-              <Picker.Item label="Female" value="female" />
-              <Picker.Item label="Others" value="others" />
+              <Picker.Item
+                label={contentsLabel?.["Male"] || "Male"}
+                value="male"
+              />
+              <Picker.Item
+                label={contentsLabel?.["Female"] || "Female"}
+                value="female"
+              />
+              <Picker.Item
+                label={contentsLabel?.["Others"] || "Others"}
+                value="others"
+              />
             </Picker>
           </View>
           {errors.service_receiver_gender && (
@@ -219,7 +261,10 @@ const EmptyingSubmissionScreen = ({ route }) => {
           )}
 
           <TextInput
-            label={EmptyingFieldsEnum.ServiceReciverPhone}
+            label={
+              contentsLabel?.[EmptyingFieldsEnum.ServiceReciverPhone] ||
+              EmptyingFieldsEnum.ServiceReciverPhone
+            }
             keyboardType="number-pad"
             value={service_receiver_contact}
             error={errors.service_receiver_contact}
@@ -232,7 +277,10 @@ const EmptyingSubmissionScreen = ({ route }) => {
           )}
 
           <TextInput
-            label={EmptyingFieldsEnum.EmptyingReason}
+            label={
+              contentsLabel?.[EmptyingFieldsEnum.EmptyingReason] ||
+              EmptyingFieldsEnum.EmptyingReason
+            }
             numberOfLines={4}
             multiline
             value={emptying_reason}
@@ -244,7 +292,7 @@ const EmptyingSubmissionScreen = ({ route }) => {
           )}
 
           <TextInput
-            label="No. Of Trips *"
+            label={contentsLabel?.["No. of trips"] || "No. of Trips"}
             keyboardType="number-pad"
             value={no_of_trips.toString()}
             error={errors.no_of_trips}
@@ -255,7 +303,10 @@ const EmptyingSubmissionScreen = ({ route }) => {
           )}
 
           <TextInput
-            label={EmptyingFieldsEnum.Sludge}
+            label={
+              contentsLabel?.[EmptyingFieldsEnum.Sludge] ||
+              EmptyingFieldsEnum.Sludge
+            }
             value={volume_of_sludge.toString()}
             onChangeText={handleChange("volume_of_sludge")}
             keyboardType="number-pad"
@@ -295,15 +346,25 @@ const EmptyingSubmissionScreen = ({ route }) => {
               }
             >
               <Picker.Item
-                label={EmptyingFieldsEnum.DesludginggVehicleNumber}
+                label={
+                  contentsLabel?.[
+                    EmptyingFieldsEnum.DesludginggVehicleNumber
+                  ] || EmptyingFieldsEnum.DesludginggVehicleNumber
+                }
                 value=""
                 color="#767A7D"
               />
               {vehicles.map((item) => (
                 <Picker.Item
                   key={item?.id}
+                  multiline
                   value={item?.id}
-                  label={`License plate ${item?.license_plate_number}/Capacity: ${item?.capacity}`}
+                  numberOfLines={3}
+                  label={`${
+                    contentsLabel?.["License plate"] || "License plate"
+                  } ${item?.license_plate_number}/${
+                    contentsLabel?.["Capacity"] || "Capacity"
+                  }: ${item?.capacity}`}
                 />
               ))}
             </Picker>
@@ -326,7 +387,11 @@ const EmptyingSubmissionScreen = ({ route }) => {
               selectedValue={driver}
               onValueChange={(value) => setFieldValue("driver", value)}
             >
-              <Picker.Item label="Select A Driver *" value="" color="#767A7D" />
+              <Picker.Item
+                label={contentsLabel?.["Select A Driver"] || "Select A Driver"}
+                value=""
+                color="#767A7D"
+              />
               {drivers.map((item) => (
                 <Picker.Item
                   key={item?.id}
@@ -355,7 +420,9 @@ const EmptyingSubmissionScreen = ({ route }) => {
               onValueChange={(value) => setFieldValue("emptier1", value)}
             >
               <Picker.Item
-                label="Select Emptier 1 *"
+                label={
+                  contentsLabel?.["Select Emptier 1"] || "Select Emptier 1"
+                }
                 value=""
                 color="#767A7D"
               />
@@ -386,7 +453,13 @@ const EmptyingSubmissionScreen = ({ route }) => {
               selectedValue={emptier2}
               onValueChange={(value) => setFieldValue("emptier2", value)}
             >
-              <Picker.Item label="Select Emptier 2" value="" color="#767A7D" />
+              <Picker.Item
+                label={
+                  contentsLabel?.["Select Emptier 2"] || "Select Emptier 2"
+                }
+                value=""
+                color="#767A7D"
+              />
               {emptiers.map((item) => (
                 <Picker.Item
                   key={item?.id}
@@ -402,7 +475,7 @@ const EmptyingSubmissionScreen = ({ route }) => {
 
           <Pressable onPress={() => setTimeOpen(true)}>
             <TextInput
-              label="Start Time *"
+              label={contentsLabel?.["Start Time"] || "Start Time"}
               editable={false}
               error={errors.start_time}
               value={dayjs(start_time).format("HH:mm")}
@@ -414,7 +487,7 @@ const EmptyingSubmissionScreen = ({ route }) => {
 
           <Pressable onPress={() => setEndTimeOpen(true)}>
             <TextInput
-              label="End Time *"
+              label={contentsLabel?.["End Time"] || "End Time"}
               editable={false}
               error={errors.end_time}
               value={dayjs(end_time).format("HH:mm")}
@@ -449,7 +522,7 @@ const EmptyingSubmissionScreen = ({ route }) => {
           />
 
           <TextInput
-            label="Receipt Number *"
+            label={contentsLabel?.["Receipt Number"] || "Receipt Number"}
             value={receipt_number}
             error={errors.receipt_number}
             onChangeText={handleChange("receipt_number")}
@@ -459,7 +532,7 @@ const EmptyingSubmissionScreen = ({ route }) => {
           )}
 
           <TextInput
-            label="Total Cost *"
+            label={contentsLabel?.["Total Cost"] || "Total Cost"}
             value={total_cost.toString()}
             keyboardType="number-pad"
             error={errors.total_cost}
@@ -488,7 +561,10 @@ const EmptyingSubmissionScreen = ({ route }) => {
               }
             >
               <Picker.Item
-                label="Select A Disposal Place *"
+                label={
+                  contentsLabel?.["Select A Disposal Place"] ||
+                  "Select A Disposal Place"
+                }
                 value=""
                 color="#767A7D"
               />
@@ -535,15 +611,21 @@ const EmptyingSubmissionScreen = ({ route }) => {
                   <Card.Content style={styles.uploadImageContainer}>
                     <Icon source={"image-plus"} size={36} />
                     <View style={{ alignItems: "center" }}>
-                      <Text variant="labelLarge">Upload House Image</Text>
-                      <Text variant="labelLarge">(Max 5MB)</Text>
+                      <Text variant="labelLarge">
+                        {contentsLabel?.[`Upload House Image`] ||
+                          `Upload House Image`}
+                      </Text>
+                      <Text variant="labelLarge">
+                        {contentsLabel?.[`(Max 5MB)`] || `(Max 5MB)`}
+                      </Text>
                     </View>
                   </Card.Content>
                 </Card>
               )}
               {!house_image && errors.house_image ? (
                 <HelperText type="error">
-                  File size should not exceed 5MB
+                  {contentsLabel?.["File Size should not exceed 5MB"] ||
+                    "File Size should not exceed 5MB"}
                 </HelperText>
               ) : null}
             </View>
@@ -580,52 +662,24 @@ const EmptyingSubmissionScreen = ({ route }) => {
                 <Card.Content style={styles.uploadImageContainer}>
                   <Icon source={"image-plus"} size={36} />
                   <View style={{ alignItems: "center" }}>
-                    <Text variant="labelLarge">Upload Receipt Image *</Text>
-                    <Text variant="labelLarge">(Max 5MB)</Text>
+                    <Text variant="labelLarge">
+                      {contentsLabel?.[`Upload Receipt Image`] ||
+                        `Upload Receipt Image`}
+                    </Text>
+                    <Text variant="labelLarge">
+                      {contentsLabel?.[`(Max 5MB)`] || `(Max 5MB)`}
+                    </Text>
                   </View>
                 </Card.Content>
               </Card>
             )}
             {!receipt_image && errors.receipt_image ? (
               <HelperText type="error">
-                File size should not exceed 5MB
+                {contentsLabel?.["File Size should not exceed 5MB"] ||
+                  "File Size should not exceed 5MB"}
               </HelperText>
             ) : null}
           </View>
-
-          {/* <View style={styles.imgContainer}>
-          <Text style={styles.text}>House image* (Max 2 MB)</Text>
-          <Pressable
-            onPress={() => setImage({open: true, name: 'house_image'})}
-            style={styles.img}>
-            <Image
-              style={styles.img1}
-              source={{
-                uri: house_image ? house_image : defaultImage,
-              }}
-            />
-          </Pressable>
-        </View>
-        {errors.house_image && (
-          <HelperText type="error">{errors.house_image}</HelperText>
-        )}
-
-        <View style={styles.imgContainer}>
-          <Text style={styles.text}>Receipt image* (Max 2 MB)</Text>
-          <Pressable
-            onPress={() => setImage({open: true, name: 'receipt_image'})}
-            style={styles.img}>
-            <Image
-              style={styles.img1}
-              source={{
-                uri: receipt_image ? receipt_image : defaultImage,
-              }}
-            />
-          </Pressable>
-        </View>
-        {errors.receipt_image && (
-          <HelperText type="error">{errors.receipt_image}</HelperText>
-        )} */}
 
           <Portal>
             <Dialog
@@ -643,7 +697,7 @@ const EmptyingSubmissionScreen = ({ route }) => {
                   openCamera(setFieldValue);
                 }}
               >
-                Open camera
+                {contentsLabel?.["Open Camera"] || "Open Camera"}
               </Button>
               <Button
                 onPress={() => {
@@ -651,12 +705,13 @@ const EmptyingSubmissionScreen = ({ route }) => {
                   openGallery(setFieldValue);
                 }}
               >
-                Choose from gallery
+                {contentsLabel?.["Choose from gallery"] ||
+                  "Choose from gallery"}
               </Button>
             </Dialog>
           </Portal>
           <TextInput
-            label="Comments (If any)"
+            label={contentsLabel?.["Comments (If any)"] || "Comments (If any)"}
             numberOfLines={4}
             multiline
             value={comments}
@@ -673,7 +728,7 @@ const EmptyingSubmissionScreen = ({ route }) => {
             mode="contained"
             onPress={handleSubmit}
           >
-            Submit
+            {contentsLabel?.["Submit"] || "Submit"}
           </Button>
         </View>
         {isSubmitting && <LoadingView />}
@@ -751,223 +806,3 @@ const styles = StyleSheet.create({
 });
 
 export default EmptyingSubmissionScreen;
-
-// import React, { useEffect, useState } from 'react';
-// import { StyleSheet, View, Pressable, Alert, ScrollView } from 'react-native';
-// import { TextInput, HelperText, Button, Picker, Card } from 'react-native-paper';
-// import DatePicker from 'react-native-date-picker';
-// import dayjs from 'dayjs';
-// import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-// import useEmptying from '../../hooks/useEmptying';
-// import { Header } from '../../components/headers';
-
-// const EmptyingSubmissionScreen = ({ route }) => {
-//   // Replacing Formik's state with useState hooks
-//   const [volumeOfSludge, setVolumeOfSludge] = useState();
-//   const [desludgingVehicleId, setDesludgingVehicleId] = useState();
-//   const [treatmentPlantId, setTreatmentPlantId] = useState();
-//   const [driver, setDriver] = useState();
-//   const [emptier1, setEmptier1] = useState();
-//   const [emptier2, setEmptier2] = useState();
-//   const [startTime, setStartTime] = useState(new Date());
-//   const [endTime, setEndTime] = useState(new Date());
-//   const [noOfTrips, setNoOfTrips] = useState();
-//   const [receiptNumber, setReceiptNumber] = useState();
-//   const [totalCost, setTotalCost] = useState();
-//   const [applicationId, setApplicationId] = useState()
-
-//   const [serviceReceiverContact, setServiceReceiverContact] = useState();
-
-//   const [emptyingReason, setEmptyingReason] = useState('');
-
-//   const [date, setDate] = useState(new Date());
-//   const [serviceReceiverName, setServiceReceiverName] = useState('');
-//   const [serviceReceiverGender, setServiceReceiverGender] = useState('');
-//   const [distanceClosestWell, setDistanceClosestWell] = useState('');
-
-//   const [dateOpen, setDateOpen] = useState(false);
-//   const [timeOpen, setTimeOpen] = useState(false);
-//   const [endTimeOpen, setEndTimeOpen] = useState(false);
-
-//   const { item } = route.params;
-//   const {
-//     drivers,
-//     emptiers,
-//     treatmentPlants,
-//     vehicles,
-//     fetchTreatmentPlants,
-//     fetchDrivers,
-//     fetchVacugtugs,
-//     fetchVehicles,
-//     fetchUserLocation
-//   } = useEmptying(item);
-
-//   useEffect(() => {
-//     fetchDrivers();
-//     fetchVacugtugs();
-//     fetchTreatmentPlants();
-//     fetchVehicles();
-//     fetchUserLocation();
-//   }, []);
-
-//   const option = {
-//     mediaType: 'photo',
-//     quality: 0.1,
-//     cameraType: 'back',
-//   };
-
-//   const openCamera = (setImageField) => {
-//     launchCamera(option, res => {
-//       if (res.didCancel) return;
-
-//       if (res.assets[0].fileSize > 200000) {
-//         Alert.alert(
-//           'File size error',
-//           'The image size exceeds 2 MB, please try again.',
-//         );
-//         return;
-//       }
-
-//       setImageField(res.assets[0].uri);
-//     });
-//   };
-
-//   const openGallery = (setImageField) => {
-//     launchImageLibrary(option, res => {
-//       if (res.didCancel) return;
-
-//       if (res.assets[0].fileSize > 200000) {
-//         Alert.alert(
-//           'File size error',
-//           'The image size exceeds 2 MB, please try again.',
-//         );
-//         return;
-//       }
-
-//       setImageField(res.assets[0].uri);
-//     });
-//   };
-
-//   const handleSubmit = () => {
-//     // Handle form submission logic here
-//     // Send the state values to your API or other logic
-//     console.log({
-//       date,
-//       serviceReceiverName,
-//       serviceReceiverGender,
-//       serviceReceiverContact,
-//       emptyingReason,
-//       volumeOfSludge,
-//       distanceClosestWell,
-//       desludgingVehicleId,
-//       treatmentPlantId,
-//       driver,
-//       emptier1,
-//       emptier2,
-//       startTime,
-//       endTime,
-//       noOfTrips,
-//       receiptNumber,
-//       totalCost,
-//     });
-//   };
-
-//   return (
-//     <View style={styles.mainContainer}>
-//       <Header title={`Emptying service #${route?.params?.item?.id}`} />
-//       <ScrollView style={styles.container}>
-//         <View style={{ gap: 12, paddingHorizontal: 4 }}>
-//           <TextInput
-//             label="Date"
-//             editable={false}
-//             value={dayjs(date).format('DD MMMM YYYY')}
-//           />
-//           <DatePicker
-//             date={date}
-//             open={dateOpen}
-//             modal
-//             mode="date"
-//             onCancel={() => setDateOpen(false)}
-//             onConfirm={(date) => {
-//               setDateOpen(false);
-//               setDate(date);
-//             }}
-//           />
-
-//           <TextInput
-//             label="Service Receiver Name"
-//             value={serviceReceiverName}
-//             onChangeText={setServiceReceiverName}
-//           />
-//           <HelperText type="error">{/* Validation message */}</HelperText>
-
-//           <View style={styles.picker}>
-//             <Picker
-//               selectedValue={serviceReceiverGender}
-//               onValueChange={(value) => setServiceReceiverGender(value)}
-//             >
-//               <Picker.Item label="Select Gender" value="" />
-//               <Picker.Item label="Male" value="M" />
-//               <Picker.Item label="Female" value="F" />
-//               <Picker.Item label="Others" value="O" />
-//             </Picker>
-//           </View>
-
-//           <TextInput
-//             label="Service Receiver Contact"
-//             keyboardType="number-pad"
-//             value={serviceReceiverContact}
-//             onChangeText={setServiceReceiverContact}
-//           />
-//           <HelperText type="error">{/* Validation message */}</HelperText>
-
-//           <TextInput
-//             label="Emptying Reason"
-//             multiline
-//             numberOfLines={4}
-//             value={emptyingReason}
-//             onChangeText={setEmptyingReason}
-//           />
-
-//           <TextInput
-//             label="Volume of Sludge"
-//             keyboardType="number-pad"
-//             value={volumeOfSludge}
-//             onChangeText={setVolumeOfSludge}
-//           />
-
-//           <TextInput
-//             label="Distance to Closest Well"
-//             keyboardType="number-pad"
-//             value={distanceClosestWell}
-//             onChangeText={setDistanceClosestWell}
-//           />
-
-//           <View style={styles.picker}>
-//             <Picker
-//               selectedValue={desludgingVehicleId}
-//               onValueChange={(value) => setDesludgingVehicleId(value)}
-//             >
-//               <Picker.Item label="Select Vehicle" value="" />
-//               {vehicles.map((vehicle) => (
-//                 <Picker.Item
-//                   key={vehicle.id}
-//                   label={`License plate ${vehicle.license_plate_number}`}
-//                   value={vehicle.id}
-//                 />
-//               ))}
-//             </Picker>
-//           </View>
-
-//           <Button onPress={handleSubmit}>Submit</Button>
-//         </View>
-//       </ScrollView>
-//     </View>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   // Define your styles here
-// });
-
-// export default EmptyingSubmissionScreen;

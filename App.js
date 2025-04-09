@@ -1,21 +1,19 @@
-import React, {useEffect} from 'react';
-import 'react-native-gesture-handler';
-import {Provider as StoreProvider} from 'react-redux';
-import {Provider as PaperProvider} from 'react-native-paper';
-import {NavigationContainer} from '@react-navigation/native';
-import {PersistGate} from 'redux-persist/integration/react';
-import {persistStore} from 'redux-persist';
+import React, { useEffect } from "react";
+import "react-native-gesture-handler";
+import { Provider as StoreProvider } from "react-redux";
+import { Provider as PaperProvider } from "react-native-paper";
+import { PersistGate } from "redux-persist/integration/react";
+import { persistStore } from "redux-persist";
 
-import store from './src/store';
-import theme from './src/core/theme';
+import store from "./src/store";
+import theme from "./src/core/theme";
 
-import {navigationRef} from './src/utils/navigation';
-import AppNavigation from './src/navigation';
-import {StyleSheet} from 'react-native';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import {SheetProvider} from 'react-native-actions-sheet';
-import BootSplash from 'react-native-bootsplash';
-import './src/sheets/sheets';
+import AppNavigation from "./src/navigation";
+import { StyleSheet } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SheetProvider } from "react-native-actions-sheet";
+import BootSplash from "react-native-bootsplash";
+import "./src/sheets/sheets";
 const persistor = persistStore(store);
 const App = () => {
   useEffect(() => {
@@ -24,8 +22,8 @@ const App = () => {
     };
 
     init().finally(async () => {
-      await BootSplash.hide({fade: true});
-      console.log('BootSplash has been hidden successfully');
+      await BootSplash.hide({ fade: true });
+      console.log("BootSplash has been hidden successfully");
     });
   }, []);
   return (

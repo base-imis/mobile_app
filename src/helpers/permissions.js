@@ -1,10 +1,11 @@
-import {Alert, Platform, PlatformOSType} from 'react-native';
+import { Alert, Platform, PlatformOSType } from "react-native";
 import {
   RESULTS,
   PERMISSIONS,
   request,
   checkMultiple,
-} from 'react-native-permissions';
+} from "react-native-permissions";
+import { useSelector } from "react-redux";
 
 /**
  *
@@ -21,7 +22,7 @@ export const askLocationPermission = (onSuccess = () => {}) => {
     PERMISSIONS.IOS.LOCATION_WHEN_IN_USE,
     PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION,
   ])
-    .then(granted => {
+    .then((granted) => {
       // if granted or limited hit onSuccess callback;
       if (granted === RESULTS.GRANTED || granted === RESULTS.LIMITED) {
         onSuccess();
@@ -30,8 +31,8 @@ export const askLocationPermission = (onSuccess = () => {}) => {
         requestLocationPermission(Platform.OS, onSuccess);
       }
     })
-    .catch(error => {
-      console.log('check exception', error);
+    .catch((error) => {
+      console.log("check exception", error);
     });
 };
 
@@ -40,35 +41,39 @@ export const askLocationPermission = (onSuccess = () => {}) => {
  * @param {PlatformOSType} platform
  * @param {Function} onSuccess
  */
-const requestLocationPermission = (platform = 'android', onSuccess) => {
+const requestLocationPermission = (platform = "android", onSuccess) => {
+  const { contentsLabel } = useSelector((state) => state.auth);
+  const getLabel = (key) => contentsLabel?.[key] || key;
   const PERMISSION_TO_REQUEST =
-    platform === 'android'
+    platform === "android"
       ? PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION
       : PERMISSIONS.IOS.LOCATION_WHEN_IN_USE;
 
   request(PERMISSION_TO_REQUEST)
-    .then(granted => {
+    .then((granted) => {
       // on granted call onSuccess callback
       if (granted === RESULTS.GRANTED || granted === RESULTS.LIMITED) {
         onSuccess();
       } else {
         Alert.alert(
-          'Permission inaccessible',
-          `You have denied location permission.\n\nPlease enable it to contiue using this feature.`,
+          getLabel("Permission inaccessible"),
+          `${getLabel("You have denied location permission.")}\n\n${getLabel(
+            "Please enable it to continue using this feature."
+          )}`,
           [
             {
-              text: 'Ask me later',
+              text: getLabel("Ask me later"),
             },
             {
-              text: 'Try again',
+              text: getLabel("Try again"),
               onPress: () => askLocationPermission(onSuccess),
             },
-          ],
+          ]
         );
       }
     })
-    .catch(error => {
-      console.log('Request exception', error);
+    .catch((error) => {
+      console.log("Request exception", error);
     });
 };
 
@@ -87,7 +92,7 @@ export const askStoragePermission = (onSuccess = () => {}) => {
     PERMISSIONS.IOS.MEDIA_LIBRARY,
     PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE,
   ])
-    .then(granted => {
+    .then((granted) => {
       // if granted or limited hit onSuccess callback;
       if (granted === RESULTS.GRANTED || granted === RESULTS.LIMITED) {
         onSuccess();
@@ -96,8 +101,8 @@ export const askStoragePermission = (onSuccess = () => {}) => {
         requestStoragePermission(Platform.OS, onSuccess);
       }
     })
-    .catch(error => {
-      console.log('check exception', error);
+    .catch((error) => {
+      console.log("check exception", error);
     });
 };
 
@@ -106,34 +111,36 @@ export const askStoragePermission = (onSuccess = () => {}) => {
  * @param {PlatformOSType} platform
  * @param {Function} onSuccess
  */
-const requestStoragePermission = (platform = 'android', onSuccess) => {
+const requestStoragePermission = (platform = "android", onSuccess) => {
   const PERMISSION_TO_REQUEST =
-    platform === 'android'
+    platform === "android"
       ? PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE
       : PERMISSIONS.IOS.MEDIA_LIBRARY;
 
   request(PERMISSION_TO_REQUEST)
-    .then(granted => {
+    .then((granted) => {
       // on granted call onSuccess callback
       if (granted === RESULTS.GRANTED || granted === RESULTS.LIMITED) {
         onSuccess();
       } else {
         Alert.alert(
-          'Permission inaccessible',
-          `You have denied storage permission.\n\nPlease enable it to contiue using this feature.`,
+          getLabel("Permission inaccessible"),
+          `${getLabel("You have denied storage permission.")}\n\n${getLabel(
+            "Please enable it to continue using this feature."
+          )}`,
           [
             {
-              text: 'Ask me later',
+              text: getLabel("Ask me later"),
             },
             {
-              text: 'Try again',
+              text: getLabel("Try again"),
               onPress: () => askStoragePermission(onSuccess),
             },
-          ],
+          ]
         );
       }
     })
-    .catch(error => {
-      console.log('Request exception', error);
+    .catch((error) => {
+      console.log("Request exception", error);
     });
 };
