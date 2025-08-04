@@ -45,8 +45,8 @@ const SigninScreen = ({ navigation }) => {
   const passwordRef = useRef();
   const dispatch = useDispatch();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("superadmin@gmail.com");
+  const [password, setPassword] = useState("$uper@dm!n@2024");
   const [emailError, setEmailError] = useState(null);
   const [passwordError, setPasswordError] = useState(null);
 

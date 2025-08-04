@@ -184,6 +184,17 @@ const HomeScreen = ({ navigation }) => {
                 }
               />
             )}
+            {permissions["supervisory-assessment"] && (
+              <DashboardTile
+                title={getLabel("Supervisory Assessment")}
+                image={IMAGES.assessment}
+                onPress={() =>
+                  navigateTo(ROUTES.application_list, {
+                    assessment: true,
+                  })
+                }
+              />
+            )}
             {permissions["sewer-connection"] && (
               <DashboardTile
                 title={getLabel("Sewer Map")}

@@ -1,10 +1,12 @@
 export const URLS = {
   login: "login",
   emptyingService: "assessed-applications",
-  assessment: "applications",
+  // assessment: "applications",
+  assessment: "assessedsupervisory-applications",
+  assessmentSurveyFields: "assessedsupervisory-applications-fields",
   drivers: "drivers",
   emptiers: "emptiers",
-  saveAssessment: "save-assessment",
+  saveAssessment: "save-supervisoryassessment",
   saveEmptyingService: "save-emptying",
   treatmentPlants: "treatment-plants",
   serviceProviders: "service-providers",
@@ -24,6 +26,7 @@ export const URLS = {
   //LanguageTranslation
   getLanguages: "language/languages",
   getContentsLabel: "language/translations",
+  getTripsAllocatedRange: "trips-allocatedRange",
 };
 
 export const defaultImage =

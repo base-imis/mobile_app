@@ -7,6 +7,9 @@ export const emptyingService = async () => {
 export const assessmentService = async () => {
   return await client.get(URLS.assessment);
 };
+export const assessmentSurveyFields = async () => {
+  return await client.get(URLS.assessmentSurveyFields);
+};
 export const driversAPI = async () => {
   return await client.get(URLS.drivers);
 };
@@ -38,4 +41,10 @@ export const getLanguagesList = async () => {
 };
 export const getContentsLabel = async (lang) => {
   return await client.get(`${URLS.getContentsLabel}/${lang}`);
+};
+
+export const getTripsAllocatedRange = async (startDate, endDate) => {
+  return await client.post(
+    `${URLS.getTripsAllocatedRange}/${startDate}/${endDate}`
+  );
 };

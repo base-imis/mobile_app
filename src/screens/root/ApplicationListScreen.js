@@ -25,6 +25,7 @@ import LoadingSpinner from "../../components/common/LoadingSpinner";
 import PrimarySpinner from "../../components/common/PrimarySpinner";
 import { ErrorMessage } from "../../components/errorComponent";
 import { Header } from "../../components/headers";
+import ApplicationListSupervisoryCard from "../../components/common/ApplicationListSupervisoryCard";
 
 export default function ApplicationListScreen({ navigation, route }) {
   const [data, setData] = useState([]);
@@ -62,8 +63,9 @@ export default function ApplicationListScreen({ navigation, route }) {
   const getApplicationAssessment = () => {
     setIsLoading(true);
     assessmentService()
-      .then((res) => {
+      .then(async (res) => {
         const { data, success, error } = res.data;
+        console.log("getApplicationAssessment", res);
 
         if (success) {
           setData(data.applications);
@@ -104,7 +106,12 @@ export default function ApplicationListScreen({ navigation, route }) {
   };
 
   const openPhone = (item) => {
-    Linking.openURL(`tel:${item?.applicant_contact}`);
+    if (emptying) {
+      Linking.openURL(`tel:${item?.applicant_contact}`);
+    }
+    if (assessment == true) {
+      Linking.openURL(`tel:${item?.owner_contact}`);
+    }
   };
 
   const openGoogleMap = (item) => {
@@ -126,6 +133,7 @@ export default function ApplicationListScreen({ navigation, route }) {
   return (
     <View style={styles.container}>
       <Header title={getLabel("Application List")} />
+      {/* <Text>{JSON.stringify(data)}</Text> */}
       {!!isLoading ? (
         <PrimarySpinner />
       ) : data.length > 0 ? (
@@ -133,12 +141,28 @@ export default function ApplicationListScreen({ navigation, route }) {
         <FlatList
           data={data}
           renderItem={({ item }) => (
-            <ApplicationListCard
-              item={item}
-              onCall={() => openPhone(item)}
-              onLocation={() => openGoogleMap(item)}
-              onStart={() => onClick(item)}
-            />
+            <>
+              {emptying == true && (
+                <>
+                  <ApplicationListCard
+                    item={item}
+                    onCall={() => openPhone(item)}
+                    onLocation={() => openGoogleMap(item)}
+                    onStart={() => onClick(item)}
+                  />
+                </>
+              )}
+              {assessment == true && (
+                <>
+                  <ApplicationListSupervisoryCard
+                    item={item}
+                    onCall={() => openPhone(item)}
+                    onLocation={() => openGoogleMap(item)}
+                    onStart={() => onClick(item)}
+                  />
+                </>
+              )}
+            </>
           )}
           onRefresh={
             emptying
