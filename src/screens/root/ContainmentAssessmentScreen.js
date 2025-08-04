@@ -470,10 +470,10 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
         keyboardShouldPersistTaps={"handled"}
         contentContainerStyle={styles.container}
       >
-        <Text>{JSON.stringify(fields)}</Text>
+        {/* <Text>{JSON.stringify(fields)}</Text>
         <Text>{JSON.stringify(getValues())}</Text>
         <Text>{JSON.stringify(item)}</Text>
-        <Text>{JSON.stringify(errors)}</Text>
+        <Text>{JSON.stringify(errors)}</Text> */}
         {fields?.length > 0 &&
           fields?.map((field, index) => {
             // console.log(field);
