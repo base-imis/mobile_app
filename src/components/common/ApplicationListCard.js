@@ -24,7 +24,9 @@ const ApplicationListCard = ({ item, onCall, onLocation, onStart }) => {
         <Icon name="file" color={COLORS.primary} size={22} />
         <Subheading style={styles.title} numberOfLines={1}>{`${getLabel(
           "Application ID"
-        )}: #${item?.id ? item?.id : "N/A"} `}</Subheading>
+        )}: #${
+          item?.application_id ? item?.application_id : "N/A"
+        } `}</Subheading>
         <Icon name={expanded ? "chevron-up" : "chevron-down"} size={22} />
       </Pressable>
 
@@ -32,7 +34,9 @@ const ApplicationListCard = ({ item, onCall, onLocation, onStart }) => {
         <>
           <Divider />
           <Divider />
+          {/* <Text>{JSON.stringify(item)}</Text> */}
           <Divider style={styles.divider} />
+
           <View style={styles.row}>
             <Text>{getLabel("Application Date")}: </Text>
             <Text style={styles.text}>
@@ -42,69 +46,98 @@ const ApplicationListCard = ({ item, onCall, onLocation, onStart }) => {
             </Text>
           </View>
           <View style={styles.row}>
-            <Text>{getLabel("House Number")}: </Text>
+            <Text>{getLabel("Confirmed Emptying Date")}: </Text>
             <Text style={styles.text}>
-              {item?.building_house_number
-                ? item?.building_house_number
+              {item?.confirmed_emptying_date
+                ? item?.confirmed_emptying_date
                 : "N/A"}
+            </Text>
+          </View>
+          <View style={styles.row}>
+            <Text>{getLabel("Owner Name")}: </Text>
+            <Text style={styles.text}>
+              {item?.owner_name ? item?.owner_name : "N/A"}
+            </Text>
+          </View>
+          <View style={styles.row}>
+            <Text>{getLabel("Owner Gender")}: </Text>
+            <Text style={styles.text}>
+              {item?.owner_gender ? item?.owner_gender : "N/A"}
+            </Text>
+          </View>
+          <View style={styles.row}>
+            <Text>{getLabel("Owner Contact")}: </Text>
+            <Text style={styles.text}>
+              {item?.owner_contact ? item?.owner_contact : "N/A"}
             </Text>
           </View>
           <View style={styles.row}>
             <Text>{getLabel("BIN")}: </Text>
             <Text style={styles.text}>{item?.bin ? item?.bin : "N/A"}</Text>
           </View>
-          <View style={styles.row}>
+          {/* <View style={styles.row}>
             <Text>{getLabel("Ward")}: </Text>
             <Text style={styles.text}>{item?.ward ? item?.ward : "N/A"}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text>{getLabel("Applicant's Name")}: </Text>
+          </View> */}
+          {/* <View style={styles.row}>
+            <Text>{getLabel("Area Name")}: </Text>
             <Text style={styles.text}>
-              {item?.applicant_name ? item?.applicant_name : "N/A"}
+              {item?.ara_name ? item?.ara_name : "N/A"}
             </Text>
           </View>
           <View style={styles.row}>
-            <Text>{getLabel("Applicant's Gender")}:</Text>
-            <Text style={styles.text}>{item?.applicant_gender ?? "N/A"}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text>{getLabel("Applicant's Contact")}:</Text>
+            <Text>{getLabel("Block Name")}: </Text>
             <Text style={styles.text}>
-              {item?.applicant_contact ? item?.applicant_contact : "N/A"}
+              {item?.block_name ? item?.block_name : "N/A"}
             </Text>
           </View>
           <View style={styles.row}>
-            <Text>{getLabel("Emergency Desluding Status")}:</Text>
+            <Text>{getLabel("Road Number")}: </Text>
             <Text style={styles.text}>
-              {item?.emergency_desludging_status ? "Yes" : "No"}
+              {item?.road_number ? item?.road_number : "N/A"}
             </Text>
           </View>
           <View style={styles.row}>
-            <Text>{getLabel("Road width (m)")}: </Text>
-            <Text style={styles.text}>{item?.carrying_width ?? "N/A"}</Text>
-          </View>
-          {item?.containment_id && (
-            <View style={styles.row}>
-              <Text>{getLabel("Containment Id")}: </Text>
-              <Text style={styles.text}>
-                {formatSize(item?.containment_id)}
-              </Text>
-            </View>
-          )}
-          {item?.containment_size && (
-            <View style={styles.row}>
-              <Text>{getLabel("Containment Size (m³)")}:</Text>
-              <Text style={styles.text}>
-                {formatSize(item?.containment_size)}
-              </Text>
-            </View>
-          )}
-          <View style={styles.row}>
-            <Text>{getLabel("Proposed Emptying Date")}:</Text>
+            <Text>{getLabel("House Number")}: </Text>
             <Text style={styles.text}>
-              {item?.proposed_emptying_date
-                ? dayjs(item?.proposed_emptying_date).format("DD MMMM YYYY")
+              {item?.building_house_number
+                ? item?.building_house_number
                 : "N/A"}
+            </Text>
+          </View> */}
+
+          <View style={styles.row}>
+            <Text>{getLabel("Collapsable Section")}: </Text>
+            <Text style={styles.text}>
+              {item?.collapsable_section ? item?.collapsable_section : "N/A"}
+            </Text>
+          </View>
+          <View style={styles.row}>
+            <Text>{getLabel("Road Width (m)")}: </Text>
+            <Text style={styles.text}>
+              {item?.road_width ? item?.road_width : "N/A"}
+            </Text>
+          </View>
+          <View style={styles.row}>
+            <Text>{getLabel("Distance From Nearest Mortable Road (m)")}: </Text>
+            <Text style={styles.text}>
+              {item?.distance_from_nearest_mortable_road
+                ? item?.distance_from_nearest_mortable_road
+                : "N/A"}
+            </Text>
+          </View>
+          <View style={styles.row}>
+            <Text>{getLabel("Appropriate Desludging Vehicle")}: </Text>
+            <Text style={styles.text}>
+              {item?.appropriate_desludging_vehicle_size
+                ? item?.appropriate_desludging_vehicle_size
+                : "N/A"}
+            </Text>
+          </View>
+          <View style={styles.row}>
+            <Text>{getLabel("Containment Size")}: </Text>
+            <Text style={styles.text}>
+              {item?.containment_size ? item?.containment_size : "N/A"}
             </Text>
           </View>
         </>

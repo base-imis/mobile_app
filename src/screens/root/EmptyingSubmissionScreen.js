@@ -100,6 +100,9 @@ const EmptyingSubmissionScreen = ({ route }) => {
     service_receiver_contact,
     latitude,
     longitude,
+    advance_paid_amount,
+    additional_payment,
+    total_paid_amount,
   } = values;
 
   const option = {
@@ -108,6 +111,8 @@ const EmptyingSubmissionScreen = ({ route }) => {
     cameraType: "back",
     saveToPhotos: true,
   };
+
+  const total = Number(advance_paid_amount) + Number(additional_payment);
 
   const openCamera = (setFieldValue) => {
     launchCamera(option, (res) => {
@@ -176,9 +181,14 @@ const EmptyingSubmissionScreen = ({ route }) => {
   return (
     <View style={styles.mainCOntainer}>
       <Header
-        title={`${getLabel("Emptying Service")} #${route?.params?.item?.id}`}
+        title={`${getLabel("Emptying Service")} #${
+          route?.params?.item?.application_id
+        }`}
       />
       <ScrollView style={styles.container}>
+        <Text>{JSON.stringify(item)}</Text>
+        <Text>{JSON.stringify(values)}</Text>
+
         <View style={{ gap: 12, paddingHorizontal: 4 }}>
           <TextInput
             label={
@@ -532,14 +542,41 @@ const EmptyingSubmissionScreen = ({ route }) => {
           )}
 
           <TextInput
-            label={contentsLabel?.["Total Cost"] || "Total Cost"}
-            value={total_cost.toString()}
+            label={
+              contentsLabel?.["Advanced Paid Amount"] || "Advanced Paid Amount"
+            }
+            value={advance_paid_amount}
+            disabled={true}
             keyboardType="number-pad"
-            error={errors.total_cost}
-            onChangeText={handleChange("total_cost")}
+            error={errors.advance_paid_amount}
+            onChangeText={handleChange("advance_paid_amount")}
           />
-          {errors.total_cost && (
-            <HelperText type="error">{errors.total_cost}</HelperText>
+          {errors.advance_paid_amount && (
+            <HelperText type="error">{errors.advance_paid_amount}</HelperText>
+          )}
+          <TextInput
+            label={
+              contentsLabel?.["Additional Payment"] || "Additional Payment"
+            }
+            value={additional_payment.toString()}
+            keyboardType="number-pad"
+            error={errors.additional_payment}
+            onChangeText={handleChange("additional_payment")}
+          />
+          {errors.additional_payment && (
+            <HelperText type="error">{errors.additional_payment}</HelperText>
+          )}
+
+          <TextInput
+            label={contentsLabel?.["Total Paid Amount"] || "Total Paid Amount"}
+            value={total.toString()}
+            disabled={true}
+            keyboardType="number-pad"
+            error={errors.total_paid_amount}
+            onChangeText={handleChange("total_paid_amount")}
+          />
+          {errors.total_paid_amount && (
+            <HelperText type="error">{errors.total_paid_amount}</HelperText>
           )}
 
           <View

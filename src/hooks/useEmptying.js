@@ -49,6 +49,8 @@ const useEmptying = (application) => {
     service_receiver_contact: "",
     latitude: "",
     longitude: "",
+    advance_paid_amount: application.advance_paid_amount,
+    additional_payment: "0",
   };
 
   const [drivers, setDrivers] = useState([]);
@@ -181,6 +183,7 @@ const useEmptying = (application) => {
     vacutugTypesAPI()
       .then((res) => {
         const { success, data } = res?.data;
+        console.log("vacutugTypesAPI", res?.data);
 
         if (success) {
           setVehicles(data);
@@ -271,6 +274,11 @@ const useEmptying = (application) => {
         errors.volume_of_sludge =
           contentsLabel?.["Sludge Volume is required."] ||
           "Sludge Volume is required.";
+      }
+      if (!values.additional_payment) {
+        errors.additional_payment =
+          contentsLabel?.["Additional Payment is required."] ||
+          "Additional Payment is required.";
       }
 
       // Validate volume_of_sludge against application.size
