@@ -116,56 +116,49 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
 
         if (type === "string") {
           validator = Yup.string().required(
-            getLabel(`${field.label || field.name} is required`)
+            `${field.label || field.name} is required`
           );
           if (rule === "in" && arg) {
             const enumValues = arg.split(",");
             validator = validator.oneOf(
               enumValues,
-              getLabel(
-                `${field.label || field.name} must be one of: ${enumValues.join(
-                  ", "
-                )}`
-              )
+
+              `${field.label || field.name} must be one of: ${enumValues.join(
+                ", "
+              )}`
             );
           }
         } else if (type === "numeric") {
           validator = Yup.number()
-            .typeError(
-              getLabel(`${field.label || field.name} must be a number`)
-            )
+            .typeError(`${field.label || field.name} must be a number`)
             .required(getLabel(`${field.label || field.name} is required`));
           if (rule === "min" && arg) {
             validator = validator.min(
               Number(arg),
-              getLabel(`${field.label || field.name} must be at least ${arg}`)
+              `${field.label || field.name} must be at least ${arg}`
             );
           }
           if (rule === "max" && arg) {
             validator = validator.max(
               Number(arg),
-              getLabel(`${field.label || field.name} must be at most ${arg}`)
+              `${field.label || field.name} must be at most ${arg}`
             );
           }
         } else if (type === "integer") {
           validator = Yup.number()
-            .typeError(
-              getLabel(`${field.label || field.name} must be a number`)
-            )
-            .integer(
-              getLabel(`${field.label || field.name} must be an integer`)
-            )
+            .typeError(`${field.label || field.name} must be a number`)
+            .integer(`${field.label || field.name} must be an integer`)
             .required(getLabel(`${field.label || field.name} is required`));
           if (rule === "min" && arg) {
             validator = validator.min(
               Number(arg),
-              getLabel(`${field.label || field.name} must be at least ${arg}`)
+              `${field.label || field.name} must be at least ${arg}`
             );
           }
           if (rule === "max" && arg) {
             validator = validator.max(
               Number(arg),
-              getLabel(`${field.label || field.name} must be at most ${arg}`)
+              `${field.label || field.name} must be at most ${arg}`
             );
           }
         } else if (type == "image") {
@@ -185,23 +178,20 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
           }
           validator = Yup.mixed()
             .required(field?.label + " Image is Required")
-            .test(
-              "is-valid-type",
-              getLabel("Not a valid image type"),
-              (value) =>
-                isValidFileType(
-                  value && value.fileName && value.fileName.toLowerCase(),
-                  "image"
-                )
+            .test("is-valid-type", "Not a valid image type", (value) =>
+              isValidFileType(
+                value && value.fileName && value.fileName.toLowerCase(),
+                "image"
+              )
             )
             .test(
               "is-valid-size",
-              getLabel("Max allowed size is 5MB"),
+              "Max allowed size is 5MB",
               (value) => value && value.fileSize <= MAX_FILE_SIZE
             );
         } else if (type == "date") {
           validator = Yup.string().required(
-            getLabel(`${field.label || field.name} is required`)
+            `${field.label || field.name} is required`
           );
         }
         validations[field.name] = validator;
