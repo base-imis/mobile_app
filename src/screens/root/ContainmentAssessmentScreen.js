@@ -116,48 +116,56 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
 
         if (type === "string") {
           validator = Yup.string().required(
-            `${field.label || field.name} is required`
+            getLabel(`${field.label || field.name} is required`)
           );
           if (rule === "in" && arg) {
             const enumValues = arg.split(",");
             validator = validator.oneOf(
               enumValues,
-              `${field.label || field.name} must be one of: ${enumValues.join(
-                ", "
-              )}`
+              getLabel(
+                `${field.label || field.name} must be one of: ${enumValues.join(
+                  ", "
+                )}`
+              )
             );
           }
         } else if (type === "numeric") {
           validator = Yup.number()
-            .typeError(`${field.label || field.name} must be a number`)
-            .required(`${field.label || field.name} is required`);
+            .typeError(
+              getLabel(`${field.label || field.name} must be a number`)
+            )
+            .required(getLabel(`${field.label || field.name} is required`));
           if (rule === "min" && arg) {
             validator = validator.min(
               Number(arg),
-              `${field.label || field.name} must be at least ${arg}`
+              getLabel(`${field.label || field.name} must be at least ${arg}`)
             );
           }
           if (rule === "max" && arg) {
             validator = validator.max(
               Number(arg),
-              `${field.label || field.name} must be at most ${arg}`
+              getLabel(`${field.label || field.name} must be at most ${arg}`)
             );
           }
         } else if (type === "integer") {
           validator = Yup.number()
-            .typeError(`${field.label || field.name} must be a number`)
-            .integer(`${field.label || field.name} must be an integer`)
-            .required(`${field.label || field.name} is required`);
+            .typeError(
+              getLabel(`${field.label || field.name} must be a number`)
+            )
+            .integer(
+              getLabel(`${field.label || field.name} must be an integer`)
+            )
+            .required(getLabel(`${field.label || field.name} is required`));
           if (rule === "min" && arg) {
             validator = validator.min(
               Number(arg),
-              `${field.label || field.name} must be at least ${arg}`
+              getLabel(`${field.label || field.name} must be at least ${arg}`)
             );
           }
           if (rule === "max" && arg) {
             validator = validator.max(
               Number(arg),
-              `${field.label || field.name} must be at most ${arg}`
+              getLabel(`${field.label || field.name} must be at most ${arg}`)
             );
           }
         } else if (type == "image") {
@@ -177,20 +185,23 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
           }
           validator = Yup.mixed()
             .required(field?.label + " Image is Required")
-            .test("is-valid-type", "Not a valid image type", (value) =>
-              isValidFileType(
-                value && value.fileName && value.fileName.toLowerCase(),
-                "image"
-              )
+            .test(
+              "is-valid-type",
+              getLabel("Not a valid image type"),
+              (value) =>
+                isValidFileType(
+                  value && value.fileName && value.fileName.toLowerCase(),
+                  "image"
+                )
             )
             .test(
               "is-valid-size",
-              "Max allowed size is 5MB",
+              getLabel("Max allowed size is 5MB"),
               (value) => value && value.fileSize <= MAX_FILE_SIZE
             );
         } else if (type == "date") {
           validator = Yup.string().required(
-            `${field.label || field.name} is required`
+            getLabel(`${field.label || field.name} is required`)
           );
         }
         validations[field.name] = validator;
@@ -240,7 +251,7 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
         if (err?.response?.status === 500) {
           Alert.alert(
             "500",
-            "Something is wrong, please try again or at a later time."
+            getLabel("Something is wrong, please try again or at a later time.")
           );
         }
       })
@@ -311,8 +322,10 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
 
       if (res.assets[0].fileSize > 500000) {
         Alert.alert(
-          "File size error",
-          "The image size exceeds 5 MB, please select lower size image."
+          getLabel("File size error"),
+          getLabel(
+            "The image size exceeds 5 MB, please select lower size image."
+          )
         );
         return;
       }
@@ -331,8 +344,8 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
 
         if (res.assets[0].fileSize > 500000) {
           Alert.alert(
-            "File size error",
-            "The image size exceeds 5 MB, please try again"
+            getLabel("File size error"),
+            getLabel("The image size exceeds 5 MB, please try again")
           );
           return;
         }
@@ -420,8 +433,11 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
 
   return (
     <View style={{ flex: 1 }}>
-      <Header title="Containment Assessment" />
-      <LoadingSpinner isVisible={dataLoading} title="Loading data.." />
+      <Header title={getLabel("Containment Assessment")} />
+      <LoadingSpinner
+        isVisible={dataLoading}
+        title={getLabel("Loading data..")}
+      />
       <ScrollView
         keyboardShouldPersistTaps={"handled"}
         contentContainerStyle={styles.container}
@@ -442,6 +458,7 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
                       <Calendar
                         setValue={setValue}
                         name={field?.name}
+                        label={getLabel(field?.label)}
                         initialValue={item[field.name]}
                         errors={errors}
                       />
@@ -459,7 +476,7 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
                             {keyboard} {field?.input_type}
                           </Text> */}
                           <TextInput
-                            label={field.label}
+                            label={getLabel(field.label)}
                             disabled={field.disabled}
                             mode="outlined"
                             dense={true}
@@ -500,14 +517,14 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
                               openCamera(field.name);
                             }}
                           >
-                            Open camera
+                            {getLabel("Open camera")}
                           </Button>
                           <Button
                             onPress={() => {
                               openGallery(field.name);
                             }}
                           >
-                            Choose from gallery
+                            {getLabel("Choose from gallery")}
                           </Button>
                         </Dialog>
                       </Portal>
@@ -515,7 +532,7 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
                   )}
                   {errors[field.name]?.message ? (
                     <HelperText style={styles.errorText}>
-                      {errors[field.name].message}
+                      {getLabel(errors[field.name].message)}
                     </HelperText>
                   ) : null}
 
@@ -561,14 +578,14 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
           style={styles.btn_style}
           onPress={handleSubmit(submit)}
         >
-          Submit
+          {getLabel("Submit")}
         </Button>
       </ScrollView>
     </View>
   );
 }
 
-const Calendar = ({ setValue, name, initialValue, errors }) => {
+const Calendar = ({ setValue, name, initialValue, errors, label }) => {
   const [date, setDate] = useState(initialValue || "");
   useEffect(() => {
     return () => {
@@ -580,6 +597,7 @@ const Calendar = ({ setValue, name, initialValue, errors }) => {
       {/* <Text>{initialValue}</Text> */}
       <CustomCalendar
         selectedDate={date}
+        label={label}
         err={errors[name] ? true : false}
         mode="outlined"
         onDateSelect={(date) => {
@@ -599,6 +617,9 @@ const FileUpload = ({
   setRecieptImage,
   setValue,
 }) => {
+  const { contentsLabel } = useSelector((state) => state.auth);
+
+  const getLabel = (key) => contentsLabel?.[key] || key;
   return (
     <>
       <View style={styles.imgContainer}>
@@ -637,15 +658,8 @@ const FileUpload = ({
             <Card.Content style={styles.uploadImageContainer}>
               <Icon source={"image-plus"} size={36} />
               <View style={{ alignItems: "center" }}>
-                <Text variant="labelLarge">
-                  {/* {contentsLabel?.[`Upload Receipt Image`] ||
-                      `Upload Receipt Image`} */}
-                  {field?.label}
-                </Text>
-                <Text variant="labelLarge">
-                  {/* {contentsLabel?.[`(Max 5MB)`] || `(Max 5MB)`} */}
-                  (Max 5MB)
-                </Text>
+                <Text variant="labelLarge">{getLabel(field?.label)}</Text>
+                <Text variant="labelLarge">{getLabel("Max 5MB")}</Text>
               </View>
             </Card.Content>
           </Card>

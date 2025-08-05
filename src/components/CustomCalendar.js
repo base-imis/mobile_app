@@ -10,6 +10,7 @@ import {
   Text,
 } from "react-native-paper";
 import { getTripsAllocatedRange } from "../service/supervisor_service";
+import { useSelector } from "react-redux";
 
 const LEGEND = [
   { color: "#FFC107", label: "Holiday" },
@@ -37,7 +38,9 @@ const getMonthRange = (date) => {
   return { start, end };
 };
 
-const CustomCalendar = ({ onDateSelect, selectedDate, mode, err }) => {
+const CustomCalendar = ({ onDateSelect, selectedDate, mode, err, label }) => {
+  const { contentsLabel } = useSelector((state) => state.auth);
+  const getLabel = (key) => contentsLabel?.[key] || key;
   const [markedDates, setMarkedDates] = useState({});
   const [currentMonth, setCurrentMonth] = useState(
     dayjs().format("YYYY-MM-DD")
@@ -111,7 +114,7 @@ const CustomCalendar = ({ onDateSelect, selectedDate, mode, err }) => {
       setDisabledDates(disabled);
     } catch (e) {
       console.error("Error fetching month data:", e);
-      setError(e.message || "Failed to fetch calendar data");
+      setError(e.message || getLabel("Failed to fetch calendar data"));
       setMarkedDates({});
       setDisabledDates({});
     } finally {
@@ -147,7 +150,7 @@ const CustomCalendar = ({ onDateSelect, selectedDate, mode, err }) => {
   return (
     <View>
       <TextInput
-        label="Confirmed Emptying Date"
+        label={label}
         mode={mode || ""}
         dense={true}
         value={formatDisplayDate(selectedDate)}
@@ -167,7 +170,9 @@ const CustomCalendar = ({ onDateSelect, selectedDate, mode, err }) => {
           onDismiss={() => setModalVisible(false)}
           style={styles.dialog}
         >
-          <Dialog.Title style={styles.dialogTitle}>Select a Date</Dialog.Title>
+          <Dialog.Title style={styles.dialogTitle}>
+            {getLabel("Select a Date")}
+          </Dialog.Title>
           <Dialog.Content style={styles.dialogContent}>
             <CalendarLegend />
             {loading ? (
