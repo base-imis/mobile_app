@@ -35,8 +35,8 @@ const useEmptying = (application) => {
     end_time: new Date(new Date().getTime() + 60000),
     no_of_trips: "",
     receipt_number: "",
-    total_cost: "",
-    application_id: application?.id,
+    // total_cost: "",
+    application_id: application?.application_id,
     house_image: "",
     receipt_image: "",
     desludging_vehicle_id: "",
@@ -49,8 +49,9 @@ const useEmptying = (application) => {
     service_receiver_contact: "",
     latitude: "",
     longitude: "",
-    advance_paid_amount: application.advance_paid_amount,
+    advance_paid_amount: application.advance_paid_amount || "0",
     additional_payment: "0",
+    total_paid_amount: "0",
   };
 
   const [drivers, setDrivers] = useState([]);
@@ -360,11 +361,11 @@ const useEmptying = (application) => {
           contentsLabel?.["The Receipt Number is required."] ||
           "The Receipt Number is required.";
       }
-      if (!values.total_cost) {
-        errors.total_cost =
-          contentsLabel?.["The Total Cost is required."] ||
-          "The Total Cost is required.";
-      }
+      // if (!values.total_paid_amount) {
+      //   errors.total_paid_amount = !values.total_paid_amount;
+      //   contentsLabel?.["The Total Cost is required."] ||
+      //     "The Total Cost is required.";
+      // }
       if (application?.image_status == "false" && !values.house_image) {
         errors.house_image =
           contentsLabel?.["The House Image must be an image file."] ||
@@ -414,7 +415,13 @@ const useEmptying = (application) => {
       formdata.append("receipt_number", values.receipt_number);
       // formdata.append('receipt_number', 12111);
 
-      formdata.append("total_cost", values.total_cost);
+      formdata.append("advance_paid_amount", values.advance_paid_amount);
+      formdata.append("additional_payment", values.additional_payment);
+      formdata.append(
+        "total_paid_amount",
+        (Number(values.advance_paid_amount) || 0) +
+          (Number(values.additional_payment) || 0)
+      );
       // formdata.append('total_cost', 55);
 
       formdata.append("application_id", values.application_id);

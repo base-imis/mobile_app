@@ -149,7 +149,7 @@ const EmptyingSubmissionScreen = ({ route }) => {
   const openGallery = (setFieldValue) => {
     launchImageLibrary(option, (res) => {
       if (res.didCancel) return;
-
+      const fileSizeInMB = (res.assets[0].fileSize / (1024 * 1024)).toFixed(2);
       if (res.assets[0].type === "image/png") {
         Alert.alert(
           getLabel("File format error"),
@@ -177,6 +177,7 @@ const EmptyingSubmissionScreen = ({ route }) => {
       setFieldValue(image.name, res.assets[0]);
     });
   };
+  console.log(errors);
 
   return (
     <View style={styles.mainCOntainer}>
@@ -188,6 +189,7 @@ const EmptyingSubmissionScreen = ({ route }) => {
       <ScrollView style={styles.container}>
         <Text>{JSON.stringify(item)}</Text>
         <Text>{JSON.stringify(values)}</Text>
+        <Text>{JSON.stringify(errors)}</Text>
 
         <View style={{ gap: 12, paddingHorizontal: 4 }}>
           <TextInput
