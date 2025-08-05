@@ -713,7 +713,8 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: "#E01632",
-    paddingBottom: 15,
+    paddingBottom: 0,
+    marginBottom: 0,
   },
   imageContainer: {
     marginTop: 10,

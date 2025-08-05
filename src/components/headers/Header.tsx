@@ -199,6 +199,7 @@ export default function Header({
           title={title ? title : route?.name}
           style={{ marginLeft: hideBackAction ? 18 : 0 }}
           color={theme.colors.onPrimary}
+          titleStyle={{ fontSize: 20, fontWeight: "semibold" }}
         />
         {showRemoveMarker && (
           <Appbar.Action
