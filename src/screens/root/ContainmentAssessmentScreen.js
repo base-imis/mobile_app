@@ -73,17 +73,7 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
 
   const { item } = route.params;
 
-  const [schema, setSchema] = useState(
-    Yup.object().shape({
-      name: Yup.string().required("Name is required"),
-      email: Yup.string().email("Invalid email").required("Email is required"),
-    })
-  );
-
-  // const schema = Yup.object().shape({
-  //   name: Yup.string().required("Name is required"),
-  //   email: Yup.string().email("Invalid email").required("Email is required"),
-  // });
+  const [schema, setSchema] = useState(Yup.object().shape({}));
 
   const {
     control,
@@ -107,6 +97,7 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
 
     return () => {
       reset();
+      setRecieptImage(null);
     };
   }, []);
 
@@ -197,18 +188,11 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
               "Max allowed size is 5MB",
               (value) => value && value.fileSize <= MAX_FILE_SIZE
             );
+        } else if (type == "date") {
+          validator = Yup.string().required(
+            `${field.label || field.name} is required`
+          );
         }
-        //  else if (type == "date" && field.name == "confirmed_emptying_date") {
-        //   const today = new Date();
-        //   today.setHours(0, 0, 0, 0); // Normalize to midnight
-        //   validator ==
-        //     yup
-        //       .date()
-        //       .required(field?.label + " is Required")
-        //       .test("not-in-past", "Cannot Select a Past Date", (value) => {
-        //         return value && value >= today;
-        //       });
-        // }
         validations[field.name] = validator;
       });
 
@@ -226,6 +210,7 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
         if (field.name === "house_locality") {
           setValue("house_locality", item["area_name"]);
         }
+
         // else if (field.name === "road_name") {
         //   setValue("road_name", item["road_number"]);
         // }
@@ -233,7 +218,7 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
           setValue(field.name, item[field.name]);
         }
       } else {
-        setValue(field.name, "5");
+        setValue(field.name, "");
       }
     });
   };
@@ -259,7 +244,9 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
           );
         }
       })
-      .finally(() => setDataLoading(false));
+      .finally(() => {
+        setDataLoading(false);
+      });
   };
 
   const option = {
@@ -428,37 +415,6 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
     } finally {
       setLoading(false);
     }
-
-    // console.log("data ", data);
-
-    // saveAssessmentServiceAPI(data)
-    //   .then((response) => {
-    //     const { success, data, error } = response.data;
-
-    //     console.log("data ", response.data);
-
-    //     if (success) {
-    //       Alert.alert("Success", "Assessment has been submitted");
-    //       setLoading(false);
-    //       navigation.goBack();
-    //     } else {
-    //       if (error?.assessment) {
-    //         Alert.alert("Error", error.assessment);
-    //         setLoading(false);
-    //         return;
-    //       }
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     setLoading(false);
-    //     console.log("err ", err?.response);
-    //     if (err?.response?.status === 500) {
-    //       Alert.alert(
-    //         "500",
-    //         "Something is wrong, please try again or at a later time."
-    //       );
-    //     }
-    //   });
   };
   console.log(errors);
 
@@ -487,13 +443,8 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
                         setValue={setValue}
                         name={field?.name}
                         initialValue={item[field.name]}
+                        errors={errors}
                       />
-                      // <CustomCalendar
-                      //   selectedDate={""}
-                      //   onDateSelect={(date) =>
-                      //     setValue("confirmed_emptying_date", date)
-                      //   }
-                      // />
                     )}
                   </View>
                   {(field?.input_type == "text" ||
@@ -504,9 +455,9 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
                       defaultValue=""
                       render={({ field: { onChange, value } }) => (
                         <>
-                          <Text>
+                          {/* <Text>
                             {keyboard} {field?.input_type}
-                          </Text>
+                          </Text> */}
                           <TextInput
                             label={field.label}
                             disabled={field.disabled}
@@ -617,14 +568,24 @@ export default function ContainmentAssessmentScreen({ navigation, route }) {
   );
 }
 
-const Calendar = ({ setValue, name, initialValue }) => {
+const Calendar = ({ setValue, name, initialValue, errors }) => {
   const [date, setDate] = useState(initialValue || "");
+  useEffect(() => {
+    return () => {
+      setDate("");
+    };
+  }, []);
   return (
     <>
       {/* <Text>{initialValue}</Text> */}
       <CustomCalendar
         selectedDate={date}
-        onDateSelect={(date) => setDate(date)}
+        err={errors[name] ? true : false}
+        mode="outlined"
+        onDateSelect={(date) => {
+          setValue(name, date);
+          setDate(date);
+        }}
       />
     </>
   );
@@ -638,12 +599,10 @@ const FileUpload = ({
   setRecieptImage,
   setValue,
 }) => {
-  const [image, setImage] = useState(null);
-
   return (
     <>
       <View style={styles.imgContainer}>
-        <Text>{recieptImage}</Text>
+        {/* <Text>{recieptImage}</Text> */}
         {recieptImage ? (
           <Card mode="contained">
             <Card.Cover

@@ -37,7 +37,7 @@ const getMonthRange = (date) => {
   return { start, end };
 };
 
-const CustomCalendar = ({ onDateSelect, selectedDate }) => {
+const CustomCalendar = ({ onDateSelect, selectedDate, mode, err }) => {
   const [markedDates, setMarkedDates] = useState({});
   const [currentMonth, setCurrentMonth] = useState(
     dayjs().format("YYYY-MM-DD")
@@ -148,6 +148,8 @@ const CustomCalendar = ({ onDateSelect, selectedDate }) => {
     <View>
       <TextInput
         label="Confirmed Emptying Date"
+        mode={mode || ""}
+        dense={true}
         value={formatDisplayDate(selectedDate)}
         editable={false}
         right={
@@ -156,6 +158,7 @@ const CustomCalendar = ({ onDateSelect, selectedDate }) => {
             onPress={() => setModalVisible(true)}
           />
         }
+        error={err || false}
         onPressIn={() => setModalVisible(true)}
       />
       <Portal>
