@@ -35,19 +35,13 @@ const BuildingMapScreen = ({ navigation }) => {
   const [saveModalVisible, setSaveModalVisible] = useState(false);
 
   const { containmentCoords, mapType } = useSelector((state) => state.map);
-  const [wmslinks, setWmslink] = useState(
-    "***REMOVED***"
-  );
+  const [wmslinks, setWmslink] = useState("");
   const [showWmsLink, setShowWmsLink] = useState(false);
   const [showWmsDialog, setShowWmsDialog] = useState(false);
 
-  const [roadWmsLink, setRoadWmsLink] = useState(
-    "***REMOVED***"
-  );
+  const [roadWmsLink, setRoadWmsLink] = useState("");
 
-  const [wardWmsLink, setWardWmsLink] = useState(
-    "***REMOVED***"
-  );
+  const [wardWmsLink, setWardWmsLink] = useState("");
 
   const [roadWms, setRoadWms] = useState(false);
   const [wardWms, setWardWms] = useState(true);
