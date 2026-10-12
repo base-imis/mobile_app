@@ -50,8 +50,19 @@ export const getTripProgress = (item) => ({
  * unresolved first-trip ANF application even though save-emptying rejects it.
  */
 export const getEmptyingAction = (item) => {
-  // TODO(rajan): see the request in the conversation - this placeholder only
-  // distinguishes ANF from non-ANF and ignores trip/disposal sequencing.
+  // ANF wins even when can_add_emptying says "true" (spec §6 inconsistency).
   if (isAnfPending(item)) return "locate";
-  return "first";
+
+  // Respect an explicit refusal from the server; older payloads omit the flag.
+  const canAdd = item?.can_add_emptying;
+  if (canAdd !== undefined && canAdd !== null && !toBool(canAdd)) {
+    return "blocked";
+  }
+
+  const { done, total } = getTripProgress(item);
+  if (done >= total) return "blocked"; // every planned trip already recorded
+  if (done === 0) return "first";
+
+  // Trip N+1 opens only after disposal of trip N is recorded (spec §5).
+  return toNumber(item?.sludge_trip_no) >= done ? "next" : "blocked";
 };

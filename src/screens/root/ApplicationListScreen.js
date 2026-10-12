@@ -239,9 +239,9 @@ export default function ApplicationListScreen({ navigation, route }) {
       }
       if (action === "blocked") {
         Alert.alert(
-          getLabel("Not available yet"),
+          getLabel("Not available"),
           getLabel(
-            "The next emptying trip opens after the previous trip's sludge disposal is recorded."
+            "No emptying trip is available for this application right now. The next trip opens after the previous trip's sludge disposal is recorded."
           )
         );
         return;
