@@ -59,7 +59,7 @@ client.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-const logout = async () => {
+export const logout = async () => {
   store.dispatch(resetToken());
 };
 export default client;

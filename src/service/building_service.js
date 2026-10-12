@@ -36,3 +36,37 @@ export const getBuildings = async () => {
 export const getSewerCode = async () => {
   return await client.get(URLS.sewerCode);
 };
+
+// ---- ANF (Address Not Found) resolution ----
+
+// Building and containments at a coordinate. Response: { found, building, containments }
+export const getBuildingByPoint = async (lat, lng) => {
+  return await client.get(URLS.buildingByPoint, {params: {lat, lng}});
+};
+
+export const getBuildingFormFields = async () => {
+  return await client.get(URLS.buildingFormFields);
+};
+
+// Creates building + containment; resolves ANF when `id` (application id) is sent
+export const saveBuildingData = async payload => {
+  return await client.post(URLS.saveBuilding, payload);
+};
+
+export const getContainmentFormFields = async () => {
+  return await client.get(URLS.containmentFormFields);
+};
+
+// Adds a containment to building `bin`; resolves ANF when `id` (application id) is sent
+export const addContainmentData = async (bin, payload) => {
+  return await client.post(`${URLS.addContainment}/${encodeURIComponent(bin)}`, payload);
+};
+
+// Sent as JSON: PHP does not parse multipart bodies on PATCH requests
+export const resolveAnf = async (applicationId, {bin, containment_id}) => {
+  return await client.patch(`applications/${applicationId}/${URLS.resolveAnf}`, {
+    bin,
+    containment_id,
+  });
+};
+

@@ -12,7 +12,7 @@ export const URLS = {
   uploadBuildingData: "save-building",
   uploadContainmentData: "save-containment",
   wsBuildingLink: "wms/buildings",
-  wsContainmentLink: "wms/contaiments",
+  wsContainmentLink: "wms/containments",
   wsRoadLink: "wms/roads",
   wsWardLink: "wms/wards",
   wsSewerLink: "wms/sewers",
@@ -24,6 +24,26 @@ export const URLS = {
   //LanguageTranslation
   getLanguages: "language/languages",
   getContentsLabel: "language/translations",
+
+  // multi-trip emptying (dynamic form)
+  emptyingServiceField: "emptyingForm-fields",
+  emptyingServiceFieldPost: "save-emptying",
+
+  // sludge disposal at FSTP (multi-trip)
+  sludgeService: "assessed-sludgeapplications",
+  sludgeServiceField: "sludgedisposal-form-fields",
+  sludgeServiceFieldPost: "save-sludge",
+
+  // FSTP daily capacity
+  getTreatmentPlantCapacity: "get-treatment-plant",
+
+  // ANF (Address Not Found) resolution
+  buildingByPoint: "map/building-by-point",
+  buildingFormFields: "buildings/form-fields",
+  saveBuilding: "buildings/save",
+  containmentFormFields: "containments/form-fields",
+  addContainment: "addContainment",
+  resolveAnf: "resolve-anf",
 };
 
 export const defaultImage =
