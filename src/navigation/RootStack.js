@@ -29,6 +29,8 @@ import SewageMapScreen from "../screens/root/SewageMapScreen";
 import SewageDataScreen from "../screens/root/SewageDataScreen";
 import BuildingMapDetials from "../screens/root/BuildingMapDetails";
 import EmptyingSubmissionScreen2 from "../screens/root/EmptyingSubmissionScreen2";
+import ApplicationFormScreen from "../screens/root/ApplicationFormScreen";
+import ANFLocateBuildingScreen from "../screens/root/ANFLocateBuildingScreen";
 
 const { Screen, Navigator } = createNativeStackNavigator();
 
@@ -182,6 +184,20 @@ const RootStack = ({ navigation }) => {
           }}
           name={ROUTES.application_list}
           component={ApplicationListScreen}
+        />
+        <Screen
+          options={{ title: "Locate Building", headerShown: false }}
+          name={ROUTES.anf_locate}
+          component={ANFLocateBuildingScreen}
+        />
+        {/* Dynamic multi-trip emptying and sludge disposal form */}
+        <Screen
+          options={({ route }) => ({
+            title: route?.params?.title,
+            headerShown: false,
+          })}
+          name={ROUTES.application_form}
+          component={ApplicationFormScreen}
         />
         {/********* end of emptying service *********/}
 

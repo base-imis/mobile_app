@@ -180,7 +180,22 @@ const HomeScreen = ({ navigation }) => {
                 title={getLabel("Emptying Service")}
                 image={IMAGES.emptying}
                 onPress={() =>
-                  navigateTo(ROUTES.application_list, { emptying: true })
+                  navigateTo(ROUTES.application_list, {
+                    emptying: true,
+                    title: getLabel("Emptying Service List"),
+                  })
+                }
+              />
+            )}
+            {permissions["sludge-collection"] && (
+              <DashboardTile
+                title={getLabel("Sludge Collection")}
+                image={IMAGES.sludgeImage}
+                onPress={() =>
+                  navigateTo(ROUTES.application_list, {
+                    sludge: true,
+                    title: getLabel("Sludge Collection List"),
+                  })
                 }
               />
             )}

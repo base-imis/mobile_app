@@ -1,7 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useState, useRef } from "react";
-import { StatusBar, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  Modal,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import {
   Appbar,
@@ -33,7 +41,9 @@ import colors from "../../core/theme/colors";
 import {
   getContentsLabel,
   getLanguagesList,
+  getTreatmentPlantCapacity,
 } from "../../service/supervisor_service";
+import { toNumber } from "../../utils/applicationState";
 
 // Import the check icon
 import { List } from "react-native-paper";
@@ -43,15 +53,21 @@ interface IRegistrationHeaderProps {
   title?: string;
   showRemoveMarker?: boolean;
   showMapStyle?: boolean;
+  showFstpCapacity?: boolean;
   type?: string;
+  onClearMap?: () => void;
+  onMapPress?: () => void;
 }
 
 export default function Header({
   hideBackAction = false,
   showRemoveMarker = false,
   showMapStyle = false,
+  showFstpCapacity = false,
   title,
   type = "",
+  onClearMap,
+  onMapPress,
 }: IRegistrationHeaderProps) {
   console.log("type", type);
   const navigation = useNavigation();
@@ -89,7 +105,34 @@ export default function Header({
   };
   const handleToogleMapType = () => dispatch(toogleMapType());
   const handleResetBuildingCoords = () => {
-    dispatch(resetBuildingCoords());
+    if (onClearMap) {
+      onClearMap();
+    } else {
+      dispatch(resetBuildingCoords());
+    }
+  };
+
+  // FSTP daily capacity (GET get-treatment-plant)
+  const [fstpVisible, setFstpVisible] = useState(false);
+  const [fstpData, setFstpData] = useState<any>(null);
+  const [fstpLoading, setFstpLoading] = useState(false);
+  const [fstpError, setFstpError] = useState<string | null>(null);
+
+  const handleOpenFstp = async () => {
+    setFstpVisible(true);
+    setFstpLoading(true);
+    setFstpError(null);
+    try {
+      const res = await getTreatmentPlantCapacity();
+      setFstpData(res.data?.data ?? res.data);
+    } catch (err: any) {
+      setFstpData(null);
+      setFstpError(
+        err?.response?.data?.message || getLabel("Could not load FSTP capacity.")
+      );
+    } finally {
+      setFstpLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -200,6 +243,14 @@ export default function Header({
           style={{ marginLeft: hideBackAction ? 18 : 0 }}
           color={theme.colors.onPrimary}
         />
+        {onMapPress && (
+          <Appbar.Action
+            icon="map-marker"
+            onPress={onMapPress}
+            color={theme.colors.onPrimary}
+            style={{ opacity: 0.9 }}
+          />
+        )}
         {showRemoveMarker && (
           <Appbar.Action
             icon="layers-remove"
@@ -214,6 +265,15 @@ export default function Header({
             onPress={handleToogleMapType}
             color={theme.colors.onPrimary}
             style={{ opacity: 0.9 }}
+          />
+        )}
+        {showFstpCapacity && (
+          <Appbar.Action
+            icon="water"
+            onPress={handleOpenFstp}
+            color={theme.colors.onPrimary}
+            style={{ opacity: 0.9, marginRight: -4 }}
+            accessibilityLabel={getLabel("FSTP Capacity")}
           />
         )}
         <TouchableOpacity
@@ -300,6 +360,109 @@ export default function Header({
           />
         </BottomSheet>
       </Portal>
+
+      {/* FSTP Capacity Modal */}
+      <Modal
+        visible={fstpVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setFstpVisible(false)}
+      >
+        <View style={styles(theme).fstpOverlay}>
+          <View style={styles(theme).fstpContainer}>
+            <View style={styles(theme).fstpHeader}>
+              <Text style={styles(theme).fstpTitle}>
+                {getLabel("FSTP Capacity")}
+              </Text>
+              <TouchableOpacity onPress={() => setFstpVisible(false)}>
+                <Icon name="close" size={24} color={theme.colors.onBackground} />
+              </TouchableOpacity>
+            </View>
+            {!!fstpData?.date_display && (
+              <Text style={styles(theme).fstpDate}>{fstpData.date_display}</Text>
+            )}
+            {fstpLoading ? (
+              <View style={{ alignItems: "center", paddingVertical: 24 }}>
+                <ActivityIndicator size="large" color={theme.colors.primary} />
+              </View>
+            ) : fstpError ? (
+              <View style={{ alignItems: "center", paddingVertical: 24 }}>
+                <Text style={{ textAlign: "center", color: theme.colors.error, marginBottom: 12 }}>
+                  {fstpError}
+                </Text>
+                <TouchableOpacity onPress={handleOpenFstp}>
+                  <Text style={{ color: theme.colors.primary, fontWeight: "600" }}>
+                    {getLabel("Retry")}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : fstpData?.plants?.length > 0 ? (
+              <ScrollView style={{ maxHeight: 400 }}>
+                {fstpData.plants.map((plant: any) => {
+                  // Values may arrive as strings; parse before doing arithmetic
+                  const capacity = toNumber(plant.capacity_per_day);
+                  const remaining = toNumber(plant.remaining_capacity, capacity);
+                  const used = capacity - remaining;
+                  const pct =
+                    capacity > 0
+                      ? Math.max(0, Math.min(100, (used / capacity) * 100))
+                      : 0;
+                  const isOverflow = remaining < 0;
+                  return (
+                    <View key={String(plant.id)} style={styles(theme).fstpPlantCard}>
+                      <Text style={styles(theme).fstpPlantName}>{plant.name}</Text>
+                      {!!plant.location && (
+                        <Text style={styles(theme).fstpPlantLocation}>{plant.location}</Text>
+                      )}
+                      <View style={styles(theme).fstpBarBg}>
+                        <View
+                          style={[
+                            styles(theme).fstpBarFill,
+                            {
+                              width: `${pct}%`,
+                              backgroundColor: isOverflow
+                                ? "#e53935"
+                                : pct > 80
+                                ? "#fb8c00"
+                                : "#43a047",
+                            },
+                          ]}
+                        />
+                      </View>
+                      <View style={styles(theme).fstpBarLabels}>
+                        <Text style={styles(theme).fstpBarLabelText}>
+                          {getLabel("Used")}: {used.toFixed(1)} m³
+                        </Text>
+                        <Text style={styles(theme).fstpBarLabelText}>
+                          {getLabel("Capacity")}: {capacity} m³/day
+                        </Text>
+                      </View>
+                      <Text
+                        style={[
+                          styles(theme).fstpRemaining,
+                          { color: isOverflow ? "#e53935" : "#43a047" },
+                        ]}
+                      >
+                        {getLabel("Remaining")}: {remaining.toFixed(1)} m³
+                      </Text>
+                    </View>
+                  );
+                })}
+              </ScrollView>
+            ) : (
+              <Text
+                style={{
+                  textAlign: "center",
+                  paddingVertical: 24,
+                  color: theme.colors.onSurfaceVariant,
+                }}
+              >
+                {getLabel("No data available")}
+              </Text>
+            )}
+          </View>
+        </View>
+      </Modal>
     </>
   );
 }
@@ -357,5 +520,74 @@ const styles = (theme: MD3Theme) =>
     },
     checkIcon: {
       margin: 0,
+    },
+    fstpOverlay: {
+      flex: 1,
+      backgroundColor: "rgba(0,0,0,0.5)",
+      justifyContent: "flex-end",
+    },
+    fstpContainer: {
+      backgroundColor: theme.colors.background,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      padding: 20,
+      paddingBottom: 32,
+    },
+    fstpHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 4,
+    },
+    fstpTitle: {
+      fontSize: 18,
+      fontWeight: "bold",
+      color: theme.colors.onBackground,
+    },
+    fstpDate: {
+      fontSize: 13,
+      color: theme.colors.onSurfaceVariant,
+      marginBottom: 16,
+    },
+    fstpPlantCard: {
+      backgroundColor: theme.colors.surfaceVariant,
+      borderRadius: 12,
+      padding: 14,
+      marginBottom: 12,
+    },
+    fstpPlantName: {
+      fontSize: 15,
+      fontWeight: "600",
+      color: theme.colors.onBackground,
+      marginBottom: 2,
+    },
+    fstpPlantLocation: {
+      fontSize: 12,
+      color: theme.colors.onSurfaceVariant,
+      marginBottom: 10,
+    },
+    fstpBarBg: {
+      height: 10,
+      borderRadius: 5,
+      backgroundColor: "#e0e0e0",
+      overflow: "hidden",
+      marginBottom: 6,
+    },
+    fstpBarFill: {
+      height: "100%",
+      borderRadius: 5,
+    },
+    fstpBarLabels: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+    },
+    fstpBarLabelText: {
+      fontSize: 11,
+      color: theme.colors.onSurfaceVariant,
+    },
+    fstpRemaining: {
+      fontSize: 13,
+      fontWeight: "600",
+      marginTop: 4,
     },
   });

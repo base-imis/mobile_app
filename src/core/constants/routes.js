@@ -22,6 +22,10 @@ export const ROUTES = {
   containment_assessment: 'containment_assessment',
   emptying_service: 'emptying_service',
   empty_submission: 'empty_submission',
+  anf_locate: 'anf_locate',
+
+  // dynamic emptying (multi-trip) and sludge disposal form
+  application_form: 'application_form',
 
   //emptying service
   application_list: 'application_list',
