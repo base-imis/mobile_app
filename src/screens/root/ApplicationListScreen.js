@@ -215,12 +215,24 @@ export default function ApplicationListScreen({ navigation, route }) {
     }
   }, [emptying, sludge, assessment, loadEmptyingFirstPage, loadAnfCount, loadAll]);
 
-  // Reload on focus (e.g. after saving a trip or resolving ANF) and, for the
-  // emptying list, whenever the search text or ANF filter changes.
+  // Reload the list on focus (e.g. after saving a trip or resolving ANF) and,
+  // for the emptying list, whenever the search text or ANF filter changes.
   useFocusEffect(
     useCallback(() => {
-      refresh();
-    }, [refresh])
+      if (emptying) {
+        loadEmptyingFirstPage();
+      } else if (sludge || assessment) {
+        loadAll();
+      }
+    }, [emptying, sludge, assessment, loadEmptyingFirstPage, loadAll])
+  );
+
+  // The ANF total does not depend on the search text, so it is refreshed on
+  // focus and pull-to-refresh only, not on every query change.
+  useFocusEffect(
+    useCallback(() => {
+      if (emptying) loadAnfCount();
+    }, [emptying, loadAnfCount])
   );
 
   // ─── Navigation ─────────────────────────────────────────────────
