@@ -820,6 +820,7 @@ const ANFLocateBuildingScreen = ({ navigation, route }) => {
               ref={bottomSheetRef}
               index={0}
               snapPoints={snapPoints}
+              enableDynamicSizing={false}
               enablePanDownToClose
               onClose={() => setBottomSheetMode(null)}
               backgroundStyle={{

@@ -5,7 +5,6 @@ import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetFlatList,
   BottomSheetTextInput,
-  BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import { Portal } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -40,13 +39,13 @@ const SearchableDropdown = ({
     );
   }, [options, searchQuery]);
 
+  // The sheet is only mounted while open, so it mounts at index 0 and animates
+  // in. Snapping after a timer raced the sheet's first layout and was dropped by
+  // bottom-sheet v5, leaving the dropdown unopenable.
   const openSheet = useCallback(() => {
     if (disabled) return;
-    setIsOpen(true);
     setSearchQuery("");
-    setTimeout(() => {
-      bottomSheetRef.current?.snapToIndex(0);
-    }, 100);
+    setIsOpen(true);
   }, [disabled]);
 
   const closeSheet = useCallback(() => {
@@ -125,8 +124,9 @@ const SearchableDropdown = ({
         <Portal>
           <BottomSheet
             ref={bottomSheetRef}
-            index={-1}
+            index={0}
             snapPoints={["70%"]}
+            enableDynamicSizing={false}
             enablePanDownToClose
             onClose={() => setIsOpen(false)}
             backgroundStyle={{ backgroundColor: theme.colors.background }}
@@ -135,7 +135,8 @@ const SearchableDropdown = ({
             }}
             backdropComponent={renderBackdrop}
           >
-            <BottomSheetView style={styles.sheetHeader}>
+            {/* Plain View: a sibling BottomSheetView is overlapped by the list in bottom-sheet v5 */}
+            <View style={styles.sheetHeader}>
               <Text style={[styles.sheetTitle, { color: theme.colors.onBackground }]}>
                 {label || "Select Option"}
               </Text>
@@ -152,7 +153,7 @@ const SearchableDropdown = ({
                 ]}
                 placeholderTextColor={theme.colors.onSurfaceVariant}
               />
-            </BottomSheetView>
+            </View>
             <BottomSheetFlatList
               data={filteredOptions}
               keyExtractor={(item) => String(item.value)}

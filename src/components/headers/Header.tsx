@@ -23,7 +23,6 @@ import { useDispatch, useSelector } from "react-redux";
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetFlatList,
-  BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import {
@@ -311,6 +310,7 @@ export default function Header({
           ref={bottomSheetRef}
           index={-1}
           snapPoints={["50%"]}
+          enableDynamicSizing={false}
           enablePanDownToClose={true}
           backgroundStyle={{ backgroundColor: theme.colors.background }}
           handleIndicatorStyle={{
@@ -318,10 +318,12 @@ export default function Header({
           }}
           backdropComponent={renderBackdrop}
         >
-          <BottomSheetView style={{ paddingHorizontal: 16 }}>
-            <Text style={styles(theme).bottomSheetTitle}>Select Language</Text>
-          </BottomSheetView>
+          {/* The title is the list header: as a sibling BottomSheetView, bottom-sheet
+              v5 overlapped it with the first row. */}
           <BottomSheetFlatList
+            ListHeaderComponent={
+              <Text style={styles(theme).bottomSheetTitle}>Select Language</Text>
+            }
             data={languages}
             keyExtractor={(item) => item}
             contentContainerStyle={styles(theme).bottomSheetContainer}
