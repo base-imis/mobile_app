@@ -14,7 +14,6 @@ import {
   TextInput,
   useTheme,
 } from "react-native-paper";
-import { Picker } from "@react-native-picker/picker";
 import DatePicker from "react-native-date-picker";
 import dayjs from "dayjs";
 import { useSelector } from "react-redux";
@@ -26,6 +25,7 @@ import {
 import colors from "../../core/theme/colors";
 import LoadingView from "../common/LoadingView";
 import SearchableDropdown from "./SearchableDropdown";
+import LabeledPicker from "./LabeledPicker";
 import AddContainmentForm from "./AddContainmentForm";
 
 const LARGE_OPTIONS_THRESHOLD = 50;
@@ -248,35 +248,15 @@ const AddBuildingForm = ({
 
       return (
         <View key={name || index}>
-          <View
-            style={[
-              styles.picker,
-              {
-                borderColor: errors[name] ? theme.colors.error : null,
-                borderBottomWidth: errors[name] ? 2 : 0.5,
-              },
-            ]}
-          >
-            <Picker
-              style={styles.pickerTextStyle}
-              selectedValue={values[name]}
-              onValueChange={(val) => updateValue(name, val)}
-              enabled={!disabled}
-            >
-              <Picker.Item
-                label={placeholder || `--- ${getLabel("Select")} ${getLabel(label)} ---`}
-                value=""
-                color="#767A7D"
-              />
-              {(options || []).map((opt) => (
-                <Picker.Item
-                  key={opt.value}
-                  label={opt.label}
-                  value={String(opt.value)}
-                />
-              ))}
-            </Picker>
-          </View>
+          <LabeledPicker
+            label={fieldLabel}
+            placeholder={placeholder || `--- ${getLabel("Select")} ${getLabel(label)} ---`}
+            options={options || []}
+            value={values[name]}
+            onChange={(val) => updateValue(name, val)}
+            disabled={disabled}
+            error={!!errors[name]}
+          />
           {errors[name] && (
             <HelperText type="error">{errors[name]}</HelperText>
           )}
