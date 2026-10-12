@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
+import { joinWmsUrl } from "../../utils/wmsUrl";
 import { Alert, StyleSheet, View } from "react-native";
 import { INITIAL_LOCATION } from "../../core/constants/map";
 
@@ -41,9 +42,9 @@ const KmlViewerMapScreen = ({ route, navigation }) => {
       .then((response) => {
         const { success, data, error } = response.data;
 
-        console.log("wms", response.data.baseUrl + data.buildings);
+        console.log("wms", joinWmsUrl(response.data.baseUrl, data.buildings));
 
-        setWmslink(response.data.baseUrl + data.buildings);
+        setWmslink(joinWmsUrl(response.data.baseUrl, data.buildings));
       })
       .catch((err) => {
         console.log("Error", err);
@@ -63,7 +64,7 @@ const KmlViewerMapScreen = ({ route, navigation }) => {
 
         console.log("road", response.data);
 
-        setRoadWmsLink(response.data.baseUrl + data.roads);
+        setRoadWmsLink(joinWmsUrl(response.data.baseUrl, data.roads));
       })
       .catch((err) => {
         console.log("Error", err);
@@ -81,7 +82,7 @@ const KmlViewerMapScreen = ({ route, navigation }) => {
       .then((response) => {
         const { success, data, error } = response.data;
 
-        setWardWmsLink(response.data.baseUrl + data.wards);
+        setWardWmsLink(joinWmsUrl(response.data.baseUrl, data.wards));
       })
       .catch((err) => {
         console.log("Error", err);

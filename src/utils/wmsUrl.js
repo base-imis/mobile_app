@@ -1,4 +1,19 @@
 /**
+ * Joins the GeoServer base URL from GET wms/{layer} (`baseUrl`) with a layer
+ * link (`data.<layer>`, e.g. "wms?SERVICE=WMS&..."), using exactly one "/".
+ *
+ * Staging returns baseUrl without a trailing slash, so plain concatenation
+ * produced ".../geoserver/imis_basewms?..." and every tile request got HTTP 403.
+ * Returns "" when either part is missing (screens treat "" as "no layer").
+ */
+export function joinWmsUrl(baseUrl, path) {
+  if (!path || typeof path !== 'string') return '';
+  if (/^https?:\/\//i.test(path)) return path; // already absolute
+  if (!baseUrl || typeof baseUrl !== 'string') return '';
+  return `${baseUrl.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
+}
+
+/**
  * Transforms a WMS URL from the API into a format compatible with
  * react-native-maps WMSTile component.
  *

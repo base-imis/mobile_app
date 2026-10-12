@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { joinWmsUrl } from "../../utils/wmsUrl";
 import { Alert, Platform, StyleSheet, View } from "react-native";
 import { Marker, WMSTile } from "react-native-maps";
 import { FAB, Text } from "react-native-paper";
@@ -98,9 +99,9 @@ const SewageMapScreen = ({ navigation }) => {
       .then((response) => {
         const { success, data, error } = response.data;
 
-        console.log("wms", response.data.baseUrl + data.buildings);
+        console.log("wms", joinWmsUrl(response.data.baseUrl, data.buildings));
 
-        setWmslink(response.data.baseUrl + data.buildings);
+        setWmslink(joinWmsUrl(response.data.baseUrl, data.buildings));
         setShowWmsLink(true);
       })
       .catch((err) => {
@@ -119,9 +120,9 @@ const SewageMapScreen = ({ navigation }) => {
       .then((response) => {
         const { success, data, error } = response.data;
 
-        console.log("road", response.data.baseUrl + data.roads);
+        console.log("road", joinWmsUrl(response.data.baseUrl, data.roads));
 
-        setRoadWmsLink(response.data.baseUrl + data.roads);
+        setRoadWmsLink(joinWmsUrl(response.data.baseUrl, data.roads));
       })
       .catch((err) => {
         console.log("Error", err);
@@ -139,9 +140,9 @@ const SewageMapScreen = ({ navigation }) => {
       .then((response) => {
         const { success, data, error } = response.data;
 
-        console.log("ward", response.data.baseUrl + data.wards);
+        console.log("ward", joinWmsUrl(response.data.baseUrl, data.wards));
 
-        setWardWmsLink(response.data.baseUrl + data.wards);
+        setWardWmsLink(joinWmsUrl(response.data.baseUrl, data.wards));
       })
       .catch((err) => {
         console.log("Error", err);
@@ -159,9 +160,9 @@ const SewageMapScreen = ({ navigation }) => {
       .then((response) => {
         const { success, data, error } = response.data;
 
-        console.log("sewer", response.data.baseUrl + data.sewers);
+        console.log("sewer", joinWmsUrl(response.data.baseUrl, data.sewers));
 
-        setSewerWMSLink(response.data.baseUrl + data.sewers);
+        setSewerWMSLink(joinWmsUrl(response.data.baseUrl, data.sewers));
         setSewerWMS(true);
       })
       .catch((err) => {

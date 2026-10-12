@@ -1,4 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
+import { joinWmsUrl } from "../../utils/wmsUrl";
 import { Alert, StyleSheet, View } from "react-native";
 import React, { useRef, useEffect, useState } from "react";
 import MapView, { Marker, PROVIDER_GOOGLE, WMSTile } from "react-native-maps";
@@ -51,7 +52,7 @@ const BuildingMapScreen = ({ navigation }) => {
       .then((response) => {
         const { success, data, error } = response.data;
 
-        setWmslink(data.wmslinks);
+        setWmslink(joinWmsUrl(response.data.baseUrl, data.containments));
       })
       .catch((err) => {
         if (err?.response?.status === 500) {
@@ -68,7 +69,7 @@ const BuildingMapScreen = ({ navigation }) => {
       .then((response) => {
         const { success, data, error } = response.data;
 
-        setRoadWmsLink(data.wmslinks);
+        setRoadWmsLink(joinWmsUrl(response.data.baseUrl, data.roads));
       })
       .catch((err) => {
         console.log("Error!!", err);
@@ -86,7 +87,7 @@ const BuildingMapScreen = ({ navigation }) => {
       .then((response) => {
         const { success, data, error } = response.data;
 
-        setWardWmsLink(data.wmslinks);
+        setWardWmsLink(joinWmsUrl(response.data.baseUrl, data.wards));
       })
       .catch((err) => {
         console.log("Error", err);

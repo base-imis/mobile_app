@@ -31,7 +31,7 @@ import BottomSheet, {
 } from "@gorhom/bottom-sheet";
 
 import { COLORS } from "../../core/theme";
-import { formatWmsUrl } from "../../utils/wmsUrl";
+import { formatWmsUrl, joinWmsUrl } from "../../utils/wmsUrl";
 import { getCurrentLocation } from "../../helpers/location";
 import {
   getBuildingWmslink,
@@ -135,7 +135,7 @@ const ANFLocateBuildingScreen = ({ navigation, route }) => {
     getBuildingWmslink()
       .then((response) => {
         const { data } = response.data;
-        setWmslink(formatWmsUrl(response.data.baseUrl + data.buildings));
+        setWmslink(formatWmsUrl(joinWmsUrl(response.data.baseUrl, data.buildings)));
       })
       .catch((err) => console.log("WMS Error:", err));
   };
@@ -144,7 +144,7 @@ const ANFLocateBuildingScreen = ({ navigation, route }) => {
     getRoadWmsLink()
       .then((response) => {
         const { data } = response.data;
-        setRoadWmsLink(formatWmsUrl(response.data.baseUrl + data.roads));
+        setRoadWmsLink(formatWmsUrl(joinWmsUrl(response.data.baseUrl, data.roads)));
       })
       .catch((err) => console.log("Road WMS Error:", err));
   };
@@ -153,7 +153,7 @@ const ANFLocateBuildingScreen = ({ navigation, route }) => {
     getWardWmsLink()
       .then((response) => {
         const { data } = response.data;
-        setWardWmsLink(formatWmsUrl(response.data.baseUrl + data.wards));
+        setWardWmsLink(formatWmsUrl(joinWmsUrl(response.data.baseUrl, data.wards)));
       })
       .catch((err) => console.log("Ward WMS Error:", err));
   };
@@ -162,7 +162,7 @@ const ANFLocateBuildingScreen = ({ navigation, route }) => {
     getContainmentWmslink()
       .then((response) => {
         const { data } = response.data;
-        setContainmentWmsLink(formatWmsUrl(response.data.baseUrl + data.containments));
+        setContainmentWmsLink(formatWmsUrl(joinWmsUrl(response.data.baseUrl, data.containments)));
       })
       .catch((err) => console.log("Containment WMS Error:", err));
   };
