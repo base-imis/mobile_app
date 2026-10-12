@@ -111,7 +111,9 @@ android {
                 storePassword storePass
                 keyAlias alias
                 keyPassword keyPass
-                enableV1Signing false
+                // v1 (JAR) stays on: minSdkVersion is 23 and Android 6 cannot verify
+                // v2/v3-only APKs ("Missing META-INF/MANIFEST.MF"). v2/v3 are used on 7.0+.
+                enableV1Signing true
                 enableV2Signing true
                 enableV3Signing true
             }
