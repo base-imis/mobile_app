@@ -13,7 +13,8 @@
     android:roundIcon="@mipmap/ic_launcher_round"
     android:allowBackup="false"
     android:theme="@style/AppTheme"
-    android:usesCleartextTraffic="true">
+    android:usesCleartextTraffic="false"
+    android:networkSecurityConfig="@xml/network_security_config">
     <meta-data
       android:name="com.google.android.geo.API_KEY"
       android:value="AIzaSyDU5ZGuLkm11JJyycFr5edUtMQpI7iBSf8" />
