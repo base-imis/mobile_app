@@ -49,7 +49,7 @@ import { Controller } from "react-hook-form";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { URLS } from "../../core/constants/urls";
 import axios from "axios";
-import { BASE_URL_ENV, MAX_FILE_SIZE } from "../../constants/config";
+import { BASE_URL_ENV } from "../../constants/config";
 import { isAnfPending as isAnfPendingItem } from "../../utils/applicationState";
 import { ROUTES } from "../../core/constants/routes";
 import colors, { lightTheme } from "../../core/theme/colors";
@@ -65,6 +65,10 @@ import BottomSheet, {
 import LinearGradient from "react-native-linear-gradient";
 import { TimerPickerModal } from "react-native-timer-picker";
 import { logout } from "../../axios";
+
+// Picker pre-check, matching the server's max:5120 (KB) for emptying images.
+// The per-field validator enforces the exact limit from the form metadata.
+const MAX_IMAGE_BYTES = 5120 * 1024;
 
 export default function ApplicationFormScreen({ navigation, route }) {
   const theme = useTheme();
@@ -747,20 +751,19 @@ export default function ApplicationFormScreen({ navigation, route }) {
             let maxVal = "";
             if (maxInc) {
               const maxIndex = validation.findIndex((v) => v?.includes("max"));
-              console.log("maxIndex", maxIndex);
               if (maxIndex != -1) {
                 max = validation[maxIndex].split(":");
-                maxVal = max[1];
-                if (maxVal) {
-                  maxVal = maxVal * 100;
-                }
+                // Laravel's max rule for files is in kilobytes; fileSize is in bytes.
+                // (Multiplying by 100 made max:5120 a ~500 KB limit.)
+                const maxKb = Number(max[1]);
+                const maxBytes = maxKb * 1024;
 
                 validator = validator.test(
                   "is-file-valid-size",
-                  `Max allowed size is ${maxVal}KB`,
+                  `Max allowed size is ${maxKb}KB`,
                   (value) => {
-                    if (value && value.fileName) {
-                      return value && value.fileSize <= maxVal;
+                    if (value && value.fileName && maxKb) {
+                      return value.fileSize <= maxBytes;
                     } else {
                       return true;
                     }
@@ -972,7 +975,7 @@ export default function ApplicationFormScreen({ navigation, route }) {
           return;
         }
 
-        if (res.assets && res.assets[0].fileSize > MAX_FILE_SIZE) {
+        if (res.assets && res.assets[0].fileSize > MAX_IMAGE_BYTES) {
           Alert.alert(
             getLabel("File size error"),
             getLabel(
@@ -1028,7 +1031,7 @@ export default function ApplicationFormScreen({ navigation, route }) {
           return;
         }
 
-        if (res.assets && res.assets[0].fileSize > MAX_FILE_SIZE) {
+        if (res.assets && res.assets[0].fileSize > MAX_IMAGE_BYTES) {
           Alert.alert(
             getLabel("File size error"),
             getLabel(
