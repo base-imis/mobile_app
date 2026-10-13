@@ -19,6 +19,7 @@ import { useSelector } from "react-redux";
 import {
   getContainmentFormFields,
   addContainmentData,
+  isNoResponseError,
 } from "../../service/building_service";
 import colors from "../../core/theme/colors";
 import LabeledPicker from "./LabeledPicker";
@@ -133,7 +134,7 @@ const AddContainmentForm = ({
       if (success || status === true) {
         // Let the parent handler (ANFLocateBuildingScreen) show the success
         // alert and handle navigation — no alert here to avoid double-dialog crash.
-        onSuccess?.(data);
+        onSuccess?.({ ...(data || {}), message });
       } else {
         Alert.alert(
           getLabel("Error"),
@@ -141,6 +142,16 @@ const AddContainmentForm = ({
         );
       }
     } catch (err) {
+      // No response: the server may still have saved it, so don't report failure
+      if (isNoResponseError(err)) {
+        Alert.alert(
+          getLabel("No response from server"),
+          getLabel(
+            "The server did not respond in time. The containment may have been saved - tap the building again to check before retrying."
+          )
+        );
+        return;
+      }
       console.log("Error saving containment:", err?.response?.data);
       const serverErrors = err?.response?.data?.errors;
       if (serverErrors) {

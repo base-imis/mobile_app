@@ -39,6 +39,15 @@ export const getSewerCode = async () => {
 
 // ---- ANF (Address Not Found) resolution ----
 
+// Saving a building runs BIN generation, owner/containment inserts and ANF
+// resolution in one transaction and can outlast the 13 s default. A client
+// timeout there reported failure even though the server went on to commit.
+export const ANF_WRITE_TIMEOUT_MS = 60000;
+
+// True when no HTTP response arrived (timeout or network drop): the request
+// may still have succeeded on the server.
+export const isNoResponseError = err => !!err && !err.response;
+
 // Building and containments at a coordinate. Response: { found, building, containments }
 export const getBuildingByPoint = async (lat, lng) => {
   return await client.get(URLS.buildingByPoint, {params: {lat, lng}});
@@ -50,7 +59,9 @@ export const getBuildingFormFields = async () => {
 
 // Creates building + containment; resolves ANF when `id` (application id) is sent
 export const saveBuildingData = async payload => {
-  return await client.post(URLS.saveBuilding, payload);
+  return await client.post(URLS.saveBuilding, payload, {
+    timeout: ANF_WRITE_TIMEOUT_MS,
+  });
 };
 
 export const getContainmentFormFields = async () => {
@@ -59,14 +70,19 @@ export const getContainmentFormFields = async () => {
 
 // Adds a containment to building `bin`; resolves ANF when `id` (application id) is sent
 export const addContainmentData = async (bin, payload) => {
-  return await client.post(`${URLS.addContainment}/${encodeURIComponent(bin)}`, payload);
+  return await client.post(
+    `${URLS.addContainment}/${encodeURIComponent(bin)}`,
+    payload,
+    {timeout: ANF_WRITE_TIMEOUT_MS},
+  );
 };
 
 // Sent as JSON: PHP does not parse multipart bodies on PATCH requests
 export const resolveAnf = async (applicationId, {bin, containment_id}) => {
-  return await client.patch(`applications/${applicationId}/${URLS.resolveAnf}`, {
-    bin,
-    containment_id,
-  });
+  return await client.patch(
+    `applications/${applicationId}/${URLS.resolveAnf}`,
+    {bin, containment_id},
+    {timeout: ANF_WRITE_TIMEOUT_MS},
+  );
 };
 

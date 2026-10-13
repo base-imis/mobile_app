@@ -19,7 +19,9 @@ import dayjs from "dayjs";
 import { useSelector } from "react-redux";
 
 import {
+  getBuildingByPoint,
   getBuildingFormFields,
+  isNoResponseError,
   saveBuildingData,
 } from "../../service/building_service";
 import colors from "../../core/theme/colors";
@@ -119,6 +121,21 @@ const AddBuildingForm = ({
     return Object.keys(newErrors).length === 0;
   };
 
+  // After a lost response, check whether the building now exists at the tapped
+  // point. This form is only offered where the lookup found no building, so a
+  // building there means our save committed. Retries give the server time to finish.
+  const confirmSavedAfterLostResponse = async (pointLat, pointLng) => {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (attempt > 0) await new Promise((r) => setTimeout(r, 2500));
+      try {
+        const res = await getBuildingByPoint(pointLat, pointLng);
+        const body = res.data?.data ?? res.data;
+        if (body?.found === true || body?.building) return body.building ?? true;
+      } catch (e) {}
+    }
+    return null;
+  };
+
   const handleSubmitBuilding = async () => {
     if (!validate()) {
       Alert.alert(
@@ -129,8 +146,9 @@ const AddBuildingForm = ({
     }
 
     setSubmitting(true);
+    // Declared outside try so the catch block can use the submitted lat/lng.
+    const payload = {};
     try {
-      const payload = {};
       formGroups.forEach((group) => {
         (group.fields || []).forEach((field) => {
           if (values[field.name] !== undefined && values[field.name] !== "") {
@@ -159,11 +177,29 @@ const AddBuildingForm = ({
       if (success || status === true) {
         // Let the parent handler (ANFLocateBuildingScreen) show the success
         // alert and handle navigation — no alert here to avoid double-dialog crash.
-        onSuccess?.(data);
+        onSuccess?.({ ...(data || {}), message });
       } else {
         Alert.alert(getLabel("Error"), message || "Failed to save building");
       }
     } catch (err) {
+      // No response (timeout / dropped connection): the server may have committed.
+      if (isNoResponseError(err) && payload.lat && payload.lng) {
+        const saved = await confirmSavedAfterLostResponse(payload.lat, payload.lng);
+        if (saved) {
+          onSuccess?.({
+            bin: saved?.bin,
+            message: getLabel("Building created successfully."),
+          });
+        } else {
+          Alert.alert(
+            getLabel("No response from server"),
+            getLabel(
+              "The server did not respond in time and the building could not be confirmed. Check the map for this location before trying again."
+            )
+          );
+        }
+        return;
+      }
       console.log("Error saving building:", err?.response?.data);
       const serverErrors = err?.response?.data?.errors;
       if (serverErrors) {

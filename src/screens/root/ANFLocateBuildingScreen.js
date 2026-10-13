@@ -40,6 +40,7 @@ import {
   getContainmentWmslink,
   getBuildingByPoint,
   resolveAnf,
+  isNoResponseError,
 } from "../../service/building_service";
 import WmsView from "../../components/common/WmsView";
 import MapComponent from "../../components/mapcomponent/MapComponent";
@@ -294,6 +295,16 @@ const ANFLocateBuildingScreen = ({ navigation, route }) => {
         );
       }
     } catch (err) {
+      if (isNoResponseError(err)) {
+        Alert.alert(
+          getLabel("No response from server"),
+          getLabel(
+            "The server did not respond in time. The application may already be linked - check the application list before retrying."
+          ),
+          [{ text: getLabel("OK"), onPress: () => goBackWithRefresh() }]
+        );
+        return;
+      }
       // e.g. 422: containment already used by another active application
       Alert.alert(
         getLabel("Error"),
@@ -329,16 +340,18 @@ const ANFLocateBuildingScreen = ({ navigation, route }) => {
   const handleBuildingAdded = async (data) => {
     const bin = data?.bin;
     const containment_id = data?.containment_id || "";
+    // Server message is "Building created successfully" (QA asked for this wording)
+    const created = data?.message || getLabel("Building created successfully.");
 
     if (applicationId) {
-      // Server already resolved ANF — just navigate back with refresh
+      // The server resolves ANF in the same request when `id` is sent
       Alert.alert(
         getLabel("Success"),
-        getLabel("Building saved and linked successfully."),
+        `${created}\n${getLabel("Application")} #${applicationId} ${getLabel("is now linked to this building.")}`,
         [{ text: getLabel("OK"), onPress: () => goBackWithRefresh() }]
       );
     } else {
-      Alert.alert(getLabel("Success"), getLabel("Building and containment saved."), [
+      Alert.alert(getLabel("Success"), created, [
         { text: getLabel("OK"), onPress: () => goBackWithRefresh({ building_id: bin, containment_id, building_info: data }) }
       ]);
     }
@@ -355,11 +368,11 @@ const ANFLocateBuildingScreen = ({ navigation, route }) => {
       // Server already resolved ANF — just navigate back with refresh
       Alert.alert(
         getLabel("Success"),
-        getLabel("Containment saved and linked successfully."),
+        data?.message || getLabel("Containment saved and linked successfully."),
         [{ text: getLabel("OK"), onPress: () => goBackWithRefresh() }]
       );
     } else {
-      Alert.alert(getLabel("Success"), getLabel("Containment saved successfully."), [
+      Alert.alert(getLabel("Success"), data?.message || getLabel("Containment saved successfully."), [
         { text: getLabel("OK"), onPress: () => goBackWithRefresh({ building_id: bin, containment_id, building_info: selectedBuilding }) }
       ]);
     }

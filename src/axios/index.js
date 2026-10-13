@@ -15,6 +15,8 @@ let headers = { "Content-Type": "application/json" };
 const client = axios.create({
   baseURL: `${BASE_URL_ENV}/api/`,
   headers,
+  // Default only: individual calls (e.g. ANF writes) may pass a longer timeout.
+  timeout: 13000,
 });
 
 client.interceptors.request.use(
@@ -27,7 +29,6 @@ client.interceptors.request.use(
         config.headers.Authorization = `Bearer ${token}`;
       }
       AxiosLogger.requestLogger(config);
-      config.timeout = 13000;
       return config;
     } catch (error) {
       console.log("axios token exception", error);
