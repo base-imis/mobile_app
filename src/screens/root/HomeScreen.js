@@ -20,8 +20,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { getBuildingWmslink } from "../../service/building_service";
 import {
   emptyingService,
+  getFooterDetails,
   getLanguagesList,
 } from "../../service/supervisor_service";
+import { parseFooterText } from "../../utils/footer";
 import { useEffect } from "react";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { Header } from "../../components/headers";
@@ -38,11 +40,16 @@ const HomeScreen = ({ navigation }) => {
 
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
+  // Footer comes from GET api/footer; null keeps the built-in footer below
+  const [footerText, setFooterText] = useState(null);
 
   const { permissions } = useSelector((state) => state.auth);
 
   useEffect(() => {
     getPermissions();
+    getFooterDetails()
+      .then((res) => setFooterText(parseFooterText(res?.data)))
+      .catch(() => {});
   }, []);
 
   const getPermissions = () => {
@@ -116,6 +123,7 @@ const HomeScreen = ({ navigation }) => {
   };
   const theme = useTheme();
   const currentYear = new Date().getFullYear();
+  const LICENSE_LABEL = "CC BY-NC-SA 4.0";
 
   return (
     <View style={[styles.container]}>
@@ -220,6 +228,25 @@ const HomeScreen = ({ navigation }) => {
         /> */}
           </View>
           <View style={[styles.bottomContainer]}>
+            {footerText ? (
+              <Text style={styles.bottomText} variant="labelLarge">
+                {footerText.includes(LICENSE_LABEL) ? (
+                  <>
+                    {footerText.split(LICENSE_LABEL)[0]}
+                    <Text
+                      style={styles.bottomLink}
+                      variant="labelLarge"
+                      onPress={openCCLicense}
+                    >
+                      {LICENSE_LABEL}
+                    </Text>
+                    {footerText.split(LICENSE_LABEL).slice(1).join(LICENSE_LABEL)}
+                  </>
+                ) : (
+                  footerText
+                )}
+              </Text>
+            ) : (
             <Text style={styles.bottomText} variant="labelLarge">
               Base IMIS {"\u00A9"} 2022-{currentYear} by{" "}
               <TouchableWithoutFeedback onPress={openInnovativeSolution}>
@@ -241,6 +268,7 @@ const HomeScreen = ({ navigation }) => {
               </TouchableWithoutFeedback>
               .
             </Text>
+            )}
           </View>
         </View>
       </ScrollView>

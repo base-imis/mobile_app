@@ -58,3 +58,8 @@ export const sludgeServiceFields = async (applicationId) => {
 export const getTreatmentPlantCapacity = async () => {
   return await client.get(URLS.getTreatmentPlantCapacity);
 };
+
+// Footer text shown on the home screen
+export const getFooterDetails = async () => {
+  return await client.get(URLS.footerDetails);
+};

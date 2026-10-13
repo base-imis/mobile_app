@@ -34,6 +34,9 @@ export const URLS = {
   sludgeServiceField: "sludgedisposal-form-fields",
   sludgeServiceFieldPost: "save-sludge",
 
+  // footer text (license / developer credit)
+  footerDetails: "footer",
+
   // FSTP daily capacity
   getTreatmentPlantCapacity: "get-treatment-plant",
 
