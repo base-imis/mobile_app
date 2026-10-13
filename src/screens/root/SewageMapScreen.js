@@ -48,21 +48,14 @@ const SewageMapScreen = ({ navigation }) => {
   const { buildingCoords, mapType } = useSelector((state) => state.map);
 
   const [wmslinks, setWmslink] = useState();
-  ***REMOVED***,
   const [showWmsLink, setShowWmsLink] = useState(false);
   const [showWmsDialog, setShowWmsDialog] = useState(false);
 
-  const [roadWmsLink, setRoadWmsLink] = useState(
-    "***REMOVED***"
-  );
+  const [roadWmsLink, setRoadWmsLink] = useState("");
 
-  const [wardWmsLink, setWardWmsLink] = useState(
-    "***REMOVED***"
-  );
+  const [wardWmsLink, setWardWmsLink] = useState("");
 
-  const [sewerWMSLink, setSewerWMSLink] = useState(
-    "***REMOVED***"
-  );
+  const [sewerWMSLink, setSewerWMSLink] = useState("");
 
   const [roadWms, setRoadWms] = useState(false);
   const [wardWms, setWardWms] = useState(false);
