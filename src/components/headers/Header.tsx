@@ -222,7 +222,8 @@ export default function Header({
       <Appbar.Header
         style={{
           backgroundColor: theme.colors.primary,
-          borderBottomWidth: 0.5,
+          // Home's profile hero continues the app bar colour, so no seam there
+          borderBottomWidth: type === "home" ? 0 : 0.5,
           borderColor: colors.lightGrey,
         }}
       >

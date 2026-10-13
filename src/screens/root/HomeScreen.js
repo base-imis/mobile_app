@@ -1,12 +1,8 @@
 import React, { useState } from "react";
 import {
-  Alert,
-  Linking,
   RefreshControl,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
 
@@ -14,6 +10,7 @@ import { SPACINGS } from "../../core/theme";
 import { ROUTES } from "../../core/constants/routes";
 
 import Profile from "../../components/home/Profile";
+import HomeFooter from "../../components/home/HomeFooter";
 import DashboardTile from "../../components/home/DashboardTile";
 import { IMAGES } from "../../core/constants/images";
 import { useDispatch, useSelector } from "react-redux";
@@ -27,8 +24,7 @@ import { parseFooterText } from "../../utils/footer";
 import { useEffect } from "react";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { Header } from "../../components/headers";
-import { Text, useTheme } from "react-native-paper";
-import colors from "../../core/theme/colors";
+import { useTheme } from "react-native-paper";
 import { setLanguages } from "../../store/slices/auth.slice";
 
 const HomeScreen = ({ navigation }) => {
@@ -112,18 +108,7 @@ const HomeScreen = ({ navigation }) => {
       console.error("Failed to fetch languages:", error);
     }
   };
-  const openInnovativeSolution = () => {
-    Linking.openURL("https://www.innovativesolution.com.np"); // Replace with the actual URL
-  };
-
-  const openCCLicense = () => {
-    Linking.openURL(
-      "https://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1"
-    );
-  };
   const theme = useTheme();
-  const currentYear = new Date().getFullYear();
-  const LICENSE_LABEL = "CC BY-NC-SA 4.0";
 
   return (
     <View style={[styles.container]}>
@@ -141,9 +126,10 @@ const HomeScreen = ({ navigation }) => {
           style={{
             flex: 1,
             backgroundColor: theme.colors.elevation.level1,
-            borderTopLeftRadius: 12,
-            borderTopRightRadius: 12,
-            marginTop: -12,
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+            marginTop: -16,
+            paddingTop: SPACINGS.xs,
           }}
         >
           <View style={[styles.dbContainer]}>
@@ -227,49 +213,7 @@ const HomeScreen = ({ navigation }) => {
           image={IMAGES.land}
         /> */}
           </View>
-          <View style={[styles.bottomContainer]}>
-            {footerText ? (
-              <Text style={styles.bottomText} variant="labelLarge">
-                {footerText.includes(LICENSE_LABEL) ? (
-                  <>
-                    {footerText.split(LICENSE_LABEL)[0]}
-                    <Text
-                      style={styles.bottomLink}
-                      variant="labelLarge"
-                      onPress={openCCLicense}
-                    >
-                      {LICENSE_LABEL}
-                    </Text>
-                    {footerText.split(LICENSE_LABEL).slice(1).join(LICENSE_LABEL)}
-                  </>
-                ) : (
-                  footerText
-                )}
-              </Text>
-            ) : (
-            <Text style={styles.bottomText} variant="labelLarge">
-              Base IMIS {"\u00A9"} 2022-{currentYear} by{" "}
-              <TouchableWithoutFeedback onPress={openInnovativeSolution}>
-                <>
-                  <Text style={styles.bottomLink} variant="labelLarge">
-                    ISPL
-                  </Text>{" "}
-                  &{" "}
-                  <Text style={styles.bottomLink} variant="labelLarge">
-                    GWSC-AIT
-                  </Text>
-                </>
-              </TouchableWithoutFeedback>{" "}
-              is licensed under{" "}
-              <TouchableWithoutFeedback onPress={openCCLicense}>
-                <Text variant="labelLarge" style={styles.bottomLink}>
-                  CC BY-NC-SA 4.0
-                </Text>
-              </TouchableWithoutFeedback>
-              .
-            </Text>
-            )}
-          </View>
+          <HomeFooter text={footerText} />
         </View>
       </ScrollView>
     </View>
@@ -281,20 +225,6 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  bottomContainer: {
-    flex: 1,
-    justifyContent: "flex-end",
-    padding: 12,
-    marginTop: 18,
-  },
-  bottomText: {
-    textAlign: "center",
-    color: colors.darkGrey,
-  },
-  bottomLink: {
-    color: "rgb(30, 77, 120)",
-    lineHeight: 20,
   },
   dbContainer: {
     flex: 1,
