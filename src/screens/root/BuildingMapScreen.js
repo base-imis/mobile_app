@@ -1,4 +1,6 @@
 import { FAB, Text } from "react-native-paper";
+import { joinWmsUrl } from "../../utils/wmsUrl";
+import colors from "../../core/theme/colors";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Alert,
@@ -106,7 +108,7 @@ const BuildingMapScreen = () => {
       .then((response) => {
         const { data } = response.data;
 
-        setWmslink(response.data.baseUrl + data.buildings);
+        setWmslink(joinWmsUrl(response.data.baseUrl, data.buildings));
       })
       .catch((err) => {
         console.log("Error!!", err);
@@ -124,7 +126,7 @@ const BuildingMapScreen = () => {
     getRoadWmsLink()
       .then((response) => {
         const { data } = response.data;
-        setRoadWmsLink(response.data.baseUrl + data.roads);
+        setRoadWmsLink(joinWmsUrl(response.data.baseUrl, data.roads));
       })
       .catch((err) => {
         console.log("Error", err);
@@ -142,7 +144,7 @@ const BuildingMapScreen = () => {
       .then((response) => {
         const { success, data, error } = response.data;
 
-        setWardWmsLink(response.data.baseUrl + data.wards);
+        setWardWmsLink(joinWmsUrl(response.data.baseUrl, data.wards));
       })
       .catch((err) => {
         console.log("error", err);

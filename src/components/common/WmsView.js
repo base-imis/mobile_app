@@ -16,6 +16,8 @@ const WmsView = ({
   isWmsOn,
   isRoadWmsOn,
   isWardWmsOn,
+  isContainmentWmsOn,
+  onContainmentWmsPress,
 }) => {
   const { contentsLabel } = useSelector((state) => state.auth);
   const getLabel = (key) => contentsLabel?.[key] || key;
@@ -71,6 +73,21 @@ const WmsView = ({
             />
             <Text style={styles.text}>{getLabel("Ward")}</Text>
           </TouchableOpacity>
+
+          {isContainmentWmsOn !== undefined && (
+            <TouchableOpacity
+              style={styles.checkboxRow}
+              activeOpacity={0.9}
+              onPress={onContainmentWmsPress}
+            >
+              <Checkbox
+                color={COLORS.primary}
+                style={styles.checkBox}
+                status={isContainmentWmsOn ? "checked" : "unchecked"}
+              />
+              <Text style={styles.text}>{getLabel("Containment")}</Text>
+            </TouchableOpacity>
+          )}
         </Dialog.Content>
       </Dialog>
     </Portal>

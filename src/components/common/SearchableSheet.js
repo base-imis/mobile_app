@@ -1,4 +1,4 @@
-import { BottomSheetTextInput, BottomSheetView } from "@gorhom/bottom-sheet";
+import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetFlatList,
@@ -71,10 +71,12 @@ const SearchableSheet = ({
           style={{ padding: 10 }}
           backdropComponent={renderBackdrop}
           snapPoints={snapPoints}
+          enableDynamicSizing={false}
           enablePanDownToClose
           index={-1}
         >
-          <BottomSheetView
+          {/* Plain View: a sibling BottomSheetView is overlapped by the list in bottom-sheet v5 */}
+          <View
             style={{
               flexDirection: "row",
               alignItems: "center",
@@ -94,7 +96,7 @@ const SearchableSheet = ({
             >
               <Text style={{ fontWeight: "bold" }}>{getLabel("Clear")}</Text>
             </Pressable>
-          </BottomSheetView>
+          </View>
           <TextInput
             placeholder={getLabel("Search")}
             underlineStyle={{

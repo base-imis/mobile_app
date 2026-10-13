@@ -1,6 +1,13 @@
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
+apply plugin: "com.google.gms.google-services"
+
+// google-services.json lives in src/prod (package com.imisbase) and is git-ignored.
+// Dev builds (com.imisbase.dev) and checkouts without the file should still build.
+googleServices {
+    missingGoogleServicesStrategy = com.google.gms.googleservices.GoogleServicesPlugin.MissingGoogleServicesStrategy.WARN
+}
 
 project.ext.envConfigFiles = [
     devdebug: ".env.dev",
@@ -87,8 +94,8 @@ android {
         applicationId "com.imisbase"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 3
-        versionName "1.0.1"
+        versionCode 8
+        versionName "1.0.6"
          resValue "string", "build_config_package", "com.imisbase"
 
     }

@@ -10,4 +10,5 @@ export const IMAGES = {
   logo2: require('../../../assets/images/logo2.png'),
   fulllogo: require('../../../assets/images/imiswhitebg.png'),
   errorLogo: require('../../../assets/images/error.png'),
+  sludgeImage: require('../../../assets/images/sludge_image.png'),
 };

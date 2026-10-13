@@ -1,36 +1,67 @@
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import { getCurrentLocation } from "../../helpers/location";
 import { useSelector } from "react-redux";
 import { StyleSheet } from "react-native";
-export default function MapComponent({
-  handleMarkerPress,
-  children,
-  markerdrag,
-}) {
-  const [location, setLocation] = useState();
+
+// The map is uncontrolled: a controlled `region` prop is re-applied on every
+// parent re-render and snaps the camera back while the user is panning. Instead
+// the camera animates to the user's location once.
+//
+// The animation must wait for onMapReady: a cached location often resolves
+// before the native map is ready, and Android silently drops animateToRegion
+// calls made before then, leaving the camera on the default world view.
+const MapComponent = forwardRef(function MapComponent(
+  { handleMarkerPress, children, markerdrag },
+  ref
+) {
+  const mapRef = useRef(null);
+  const mapReadyRef = useRef(false);
+  const pendingRegionRef = useRef(null);
   const { mapType } = useSelector((state) => state.map);
+
+  // Expose the MapView instance (animateToRegion, etc.) to parents that pass a ref
+  useImperativeHandle(ref, () => mapRef.current, []);
+
+  const flushPendingRegion = () => {
+    if (mapReadyRef.current && pendingRegionRef.current) {
+      mapRef.current?.animateToRegion(pendingRegionRef.current, 500);
+      pendingRegionRef.current = null;
+    }
+  };
+
+  const handleMapReady = () => {
+    mapReadyRef.current = true;
+    flushPendingRegion();
+  };
+
   useEffect(() => {
+    let cancelled = false;
     const fetchLocation = async () => {
       try {
         const { coords } = await getCurrentLocation(false);
-        if (!!coords) {
-          setLocation(coords);
+        if (!cancelled && coords) {
+          pendingRegionRef.current = {
+            latitude: coords.latitude,
+            longitude: coords.longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          };
+          flushPendingRegion();
         }
-        // console.log('LocationResponse', coords);
       } catch (error) {}
     };
     fetchLocation();
+    return () => {
+      cancelled = true;
+    };
   }, []);
+
   return (
     <MapView
+      ref={mapRef}
+      onMapReady={handleMapReady}
       style={styles.map}
-      region={{
-        longitude: location?.longitude,
-        latitude: location?.latitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      }}
       maxZoomLevel={30}
       poiClickEnabled={false}
       onPress={handleMarkerPress}
@@ -51,7 +82,10 @@ export default function MapComponent({
       {children}
     </MapView>
   );
-}
+});
+
+export default MapComponent;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

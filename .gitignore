@@ -75,3 +75,7 @@ yarn-error.log
 
 .env.dev
 .env.prod
+
+# Firebase config: kept local (the shared project file also holds other apps' configs)
+android/app/google-services.json
+android/app/src/*/google-services.json
