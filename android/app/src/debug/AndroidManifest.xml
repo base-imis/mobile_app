@@ -2,8 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!--
+      Debug builds re-enable cleartext so the Metro packager is reachable over HTTP.
+      tools:replace is required because the main manifest now pins this to "false";
+      without it the manifest merger fails on the conflicting value.
+      The matching @xml/network_security_config override lives in src/debug/res/xml.
+    -->
     <application
         android:usesCleartextTraffic="true"
+        tools:replace="android:usesCleartextTraffic"
         tools:targetApi="28"
         tools:ignore="GoogleAppIndexingWarning"/>
 </manifest>

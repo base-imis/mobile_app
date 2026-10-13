@@ -9090,7 +9090,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-blob-util@npm:^0.19.6":
+"react-native-blob-util@npm:0.19.11":
   version: 0.19.11
   resolution: "react-native-blob-util@npm:0.19.11"
   dependencies:
@@ -9100,6 +9100,19 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 13f18e4fdca5b93236f309734aad625164c6fb5bf7191d1dc2fe4fdb385961c6802418968026fb2012ad01bda0ac092dbbcf3639d1efcd4a6361064d5b6957d0
+  languageName: node
+  linkType: hard
+
+"react-native-blob-util@patch:react-native-blob-util@npm%3A0.19.11#./.yarn/patches/react-native-blob-util-npm-0.19.11-988dba80de.patch::locator=ImisBase%40workspace%3A.":
+  version: 0.19.11
+  resolution: "react-native-blob-util@patch:react-native-blob-util@npm%3A0.19.11#./.yarn/patches/react-native-blob-util-npm-0.19.11-988dba80de.patch::version=0.19.11&hash=6d943e&locator=ImisBase%40workspace%3A."
+  dependencies:
+    base-64: 0.1.0
+    glob: ^10.3.10
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 822fe5054a2fe2e76e90737e8ad7e6cc1e225c15828411fe3081634123cf5123859b8f3653e162179b7866451a9768d2dc7c0bd9685f6ef3f72b0a6911da3c0b
   languageName: node
   linkType: hard
 

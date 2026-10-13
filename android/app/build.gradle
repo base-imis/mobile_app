@@ -99,15 +99,35 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        // Release credentials are read from ~/.gradle/gradle.properties or the
+        // environment so they never enter source control.
+        release {
+            def storePath = project.findProperty('IMIS_RELEASE_STORE_FILE') ?: System.getenv('IMIS_RELEASE_STORE_FILE')
+            def storePass = project.findProperty('IMIS_RELEASE_STORE_PASSWORD') ?: System.getenv('IMIS_RELEASE_STORE_PASSWORD')
+            def alias = project.findProperty('IMIS_RELEASE_KEY_ALIAS') ?: System.getenv('IMIS_RELEASE_KEY_ALIAS')
+            def keyPass = project.findProperty('IMIS_RELEASE_KEY_PASSWORD') ?: System.getenv('IMIS_RELEASE_KEY_PASSWORD')
+            if (storePath) {
+                storeFile file(storePath)
+                storePassword storePass
+                keyAlias alias
+                keyPassword keyPass
+                // v1 (JAR) stays on: minSdkVersion is 23 and Android 6 cannot verify
+                // v2/v3-only APKs ("Missing META-INF/MANIFEST.MF"). v2/v3 are used on 7.0+.
+                enableV1Signing true
+                enableV2Signing true
+                enableV3Signing true
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            // VAPT AND-DEBUG-SIGNED: release output must never carry the debug
+            // certificate. When no release keystore is configured the build fails
+            // (see the taskGraph guard below) instead of falling back to debug.
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
@@ -141,3 +161,21 @@ dependencies {
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+
+/**
+ * VAPT AND-DEBUG-SIGNED guard.
+ *
+ * Fails any release assemble/bundle/install before it runs unless a real release
+ * keystore has been supplied. This makes it structurally impossible to ship a
+ * debug-signed artifact again, which is what the assessment flagged as Critical.
+ */
+gradle.taskGraph.whenReady { graph ->
+    def wantsRelease = graph.allTasks.any { it.name ==~ /(?i)(assemble|bundle|install)(Dev|Prod)Release/ }
+    if (wantsRelease && android.signingConfigs.release.storeFile == null) {
+        throw new GradleException(
+            "Release signing is not configured, refusing to produce a debug-signed release.\n" +
+            "Set IMIS_RELEASE_STORE_FILE, IMIS_RELEASE_STORE_PASSWORD, IMIS_RELEASE_KEY_ALIAS and\n" +
+            "IMIS_RELEASE_KEY_PASSWORD in ~/.gradle/gradle.properties or the environment."
+        )
+    }
+}

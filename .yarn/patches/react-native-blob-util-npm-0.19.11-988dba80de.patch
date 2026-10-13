@@ -1,0 +1,45 @@
+diff --git a/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilUtils.java b/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilUtils.java
+index 1565e510d752c41b04b7c33ac494d8d67cf5f54e..89d69b21908795440aec576e56df5ed8daa86beb 100644
+--- a/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilUtils.java
++++ b/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtilUtils.java
+@@ -12,9 +12,8 @@ import java.nio.charset.Charset;
+ import java.security.MessageDigest;
+ import java.util.Locale;
+ 
+-import javax.net.ssl.HostnameVerifier;
++import javax.net.ssl.HttpsURLConnection;
+ import javax.net.ssl.SSLContext;
+-import javax.net.ssl.SSLSession;
+ import javax.net.ssl.SSLSocketFactory;
+ import javax.net.ssl.TrustManager;
+ import javax.net.ssl.X509TrustManager;
+@@ -66,20 +65,20 @@ public class ReactNativeBlobUtilUtils {
+ 
+             final TrustManager[] trustAllCerts = new TrustManager[]{sharedTrustManager};
+ 
+-            // Install the all-trusting trust manager
+-            final SSLContext sslContext = SSLContext.getInstance("SSL");
++            // VAPT CODE-WEAK-SSL-PROTOCOL-1: request "TLS" rather than the broken
++            // "SSL" family (POODLE et al) and let the platform negotiate the
++            // strongest mutually supported version.
++            final SSLContext sslContext = SSLContext.getInstance("TLS");
+             sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+-            // Create an ssl socLket factory with our all-trusting manager
+             final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+ 
+             OkHttpClient.Builder builder = client.newBuilder();
+             builder.sslSocketFactory(sslSocketFactory, sharedTrustManager);
+-            builder.hostnameVerifier(new HostnameVerifier() {
+-                @Override
+-                public boolean verify(String hostname, SSLSession session) {
+-                    return true;
+-                }
+-            });
++            // VAPT CODE-INSECURE-HOSTNAME-VERIFIER-1: the upstream implementation
++            // installed a HostnameVerifier whose verify() unconditionally returned
++            // true, so any valid certificate authenticated any host. Fall back to
++            // the platform verifier, which performs real RFC 2818 hostname matching.
++            builder.hostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
+ 
+             return builder;
+         } catch (Exception e) {
