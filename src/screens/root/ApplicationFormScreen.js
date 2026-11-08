@@ -45,6 +45,7 @@ import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { useDispatch, useSelector } from "react-redux";
 import { Header } from "../../components/headers";
 import { useForm } from "react-hook-form";
+import { formDefaults } from "../../utils/formDefaults";
 import { Controller } from "react-hook-form";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { URLS } from "../../core/constants/urls";
@@ -66,9 +67,6 @@ import LinearGradient from "react-native-linear-gradient";
 import { TimerPickerModal } from "react-native-timer-picker";
 import { logout } from "../../axios";
 
-// Picker pre-check, matching the server's max:5120 (KB) for emptying images.
-// The per-field validator enforces the exact limit from the form metadata.
-const MAX_IMAGE_BYTES = 5120 * 1024;
 
 export default function ApplicationFormScreen({ navigation, route }) {
   const theme = useTheme();
@@ -126,6 +124,8 @@ export default function ApplicationFormScreen({ navigation, route }) {
   // console.log("typessssss", type);
 
   const [schema, setSchema] = useState(Yup.object().shape({}));
+  // Time the form was opened; reloading the fields keeps these defaults
+  const openedAtRef = useRef(new Date());
 
   const {
     control,
@@ -857,6 +857,16 @@ export default function ApplicationFormScreen({ navigation, route }) {
     });
   };
 
+  // Fill date/time fields the server left empty; values stay editable
+  const applyFormDefaults = (formFields) => {
+    const defaults = formDefaults(type, openedAtRef.current);
+    formFields.forEach((field) => {
+      if (field.name in defaults && !getValues(field.name)) {
+        setValue(field.name, defaults[field.name]);
+      }
+    });
+  };
+
   const getSludgeAssessmentFormFields = () => {
     setDataLoading(true);
     sludgeServiceFields(item?.application_id ?? item?.id)
@@ -866,6 +876,7 @@ export default function ApplicationFormScreen({ navigation, route }) {
         setFields(res?.data);
         // setInitialFieldValues(res?.data || [], item);
         setSchema(buildDynamicValidations(res?.data || []));
+        applyFormDefaults(res?.data || []);
       })
       .catch((err) => {
         console.log("errr", err);
@@ -891,6 +902,7 @@ export default function ApplicationFormScreen({ navigation, route }) {
         setFields(res?.data?.form_fields);
         // setInitialFieldValues(res?.data || [], item);
         setSchema(buildDynamicValidations(res?.data?.form_fields || []));
+        applyFormDefaults(res?.data?.form_fields || []);
       })
       .catch((err) => {
         console.log("errr", err);
@@ -975,15 +987,6 @@ export default function ApplicationFormScreen({ navigation, route }) {
           return;
         }
 
-        if (res.assets && res.assets[0].fileSize > MAX_IMAGE_BYTES) {
-          Alert.alert(
-            getLabel("File size error"),
-            getLabel(
-              "The image size exceeds 5 MB, please select lower size image."
-            )
-          );
-          return;
-        }
         if (res.assets && res.assets[0].type == "image/png") {
           Alert.alert(
             getLabel("File type error"),
@@ -1031,15 +1034,6 @@ export default function ApplicationFormScreen({ navigation, route }) {
           return;
         }
 
-        if (res.assets && res.assets[0].fileSize > MAX_IMAGE_BYTES) {
-          Alert.alert(
-            getLabel("File size error"),
-            getLabel(
-              "The image size exceeds 5 MB, please select lower size image."
-            )
-          );
-          return;
-        }
         if (res.assets && res.assets[0].type == "image/png") {
           Alert.alert(
             getLabel("File type error"),
@@ -2237,12 +2231,11 @@ const InputTime = ({
             const hrs = value ? value.split(":")[0] : "00";
             const mins = value ? value.split(":")[1] : "00";
 
-            // The value is stored/submitted in 24-hour "HH:mm" form, but it is
-            // displayed to the user in 12-hour format with an AM/PM indicator.
+            // Stored, submitted and shown in 24-hour "HH:mm" form
             const parsedTime = value ? dayjs(`1970-01-01T${value}`) : null;
             const displayValue =
               parsedTime && parsedTime.isValid()
-                ? parsedTime.format("hh:mm A")
+                ? parsedTime.format("HH:mm")
                 : value;
 
             return (
@@ -2298,8 +2291,6 @@ const InputTime = ({
                       padHoursWithZero={true}
                       padMinutesWithZero={true}
                       modalTitle="Select Time"
-                      amLabel="AM"
-                      pmLabel="PM"
                       onCancel={() => setTimeOpen(false)}
                       onConfirm={(pickedDuration) => {
                         console.log("pickedDuration", pickedDuration);
