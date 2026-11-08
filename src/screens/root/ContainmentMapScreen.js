@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import SecureWMSTile from "../../components/mapcomponent/SecureWMSTile";
+import ZoomToCityButton from "../../components/mapcomponent/ZoomToCityButton";
 import { joinWmsUrl } from "../../utils/wmsUrl";
 import { Alert, StyleSheet, View } from "react-native";
 import React, { useRef, useEffect, useState } from "react";
@@ -214,6 +215,7 @@ const BuildingMapScreen = ({ navigation }) => {
       </MapView>
       <MapInfoButton onPress={setModalVisible} />
 
+      <ZoomToCityButton mapRef={mapRef} bottom={175} />
       <FAB
         animated={false}
         style={styles.fab}

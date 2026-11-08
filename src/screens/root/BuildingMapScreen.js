@@ -1,5 +1,6 @@
 import { FAB, Text } from "react-native-paper";
 import SecureWMSTile from "../../components/mapcomponent/SecureWMSTile";
+import ZoomToCityButton from "../../components/mapcomponent/ZoomToCityButton";
 import { joinWmsUrl } from "../../utils/wmsUrl";
 import colors from "../../core/theme/colors";
 import { useDispatch, useSelector } from "react-redux";
@@ -158,6 +159,7 @@ const BuildingMapScreen = () => {
       });
   };
 
+  const mapRef = useRef(null);
   const markerPressedRef = useRef(false);
 
   const handlePressOnMap = (event) => {
@@ -278,6 +280,7 @@ const BuildingMapScreen = () => {
       {locationEnabled && permissionStatus && location ? (
         <>
           <MapComponent
+            ref={mapRef}
             handleMarkerPress={handlePressOnMap}
             markerdrag={!dragging}
           >
@@ -400,6 +403,7 @@ const BuildingMapScreen = () => {
             buildingCoords={buildingCoordsState}
           />
 
+          <ZoomToCityButton mapRef={mapRef} bottom={175} />
           <FAB
             animated={false}
             style={styles.fab}

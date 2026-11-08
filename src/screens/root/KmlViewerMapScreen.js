@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import SecureWMSTile from "../../components/mapcomponent/SecureWMSTile";
+import ZoomToCityButton from "../../components/mapcomponent/ZoomToCityButton";
 import { joinWmsUrl } from "../../utils/wmsUrl";
 import { Alert, StyleSheet, View } from "react-native";
 import { INITIAL_LOCATION } from "../../core/constants/map";
@@ -188,6 +189,7 @@ const KmlViewerMapScreen = ({ route, navigation }) => {
               />
             )}
           </MapView>
+          <ZoomToCityButton mapRef={mapRef} bottom={175} />
           <FAB
             animated={false}
             style={styles.fab}

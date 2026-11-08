@@ -32,6 +32,7 @@ import BottomSheet, {
 
 import { COLORS } from "../../core/theme";
 import SecureWMSTile from "../../components/mapcomponent/SecureWMSTile";
+import ZoomToCityButton from "../../components/mapcomponent/ZoomToCityButton";
 import { formatWmsUrl, joinWmsUrl } from "../../utils/wmsUrl";
 import { getCurrentLocation } from "../../helpers/location";
 import {
@@ -806,6 +807,7 @@ const ANFLocateBuildingScreen = ({ navigation, route }) => {
           />
 
           {/* WMS Layer toggle */}
+          <ZoomToCityButton mapRef={mapComponentRef} bottom={240} />
           <FAB
             animated={false}
             style={[styles.fab, { backgroundColor: COLORS.primary }]}

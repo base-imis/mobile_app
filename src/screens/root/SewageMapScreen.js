@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import SecureWMSTile from "../../components/mapcomponent/SecureWMSTile";
+import ZoomToCityButton from "../../components/mapcomponent/ZoomToCityButton";
 import { joinWmsUrl } from "../../utils/wmsUrl";
 import { Alert, Platform, StyleSheet, View } from "react-native";
 import { Marker } from "react-native-maps";
@@ -455,6 +456,7 @@ const SewageMapScreen = ({ navigation }) => {
       {locationEnabled && permissionStatus && location ? (
         <>
           <MapComponent
+            ref={mapRef}
             handleMarkerPress={() => {
               console.log("Feature currently disabled: handleMarkerPress");
             }}
@@ -581,6 +583,7 @@ const SewageMapScreen = ({ navigation }) => {
 
           <MapInfoButton onPress={() => setIsSaveModalVisible(true)} />
 
+          <ZoomToCityButton mapRef={mapRef} bottom={175} />
           <FAB
             animated={false}
             style={styles.fab}
