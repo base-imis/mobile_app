@@ -369,30 +369,15 @@ const BuildingMapScreen = () => {
                 )}
               </>
             )}
-            {showWmsLink && wmslinks && (
-              <SecureWMSTile
-                urlTemplate={wmslinks}
-                zIndex={1}
-                opacity={0.5}
-                tileSize={512}
-              />
-            )}
-            {roadWms && roadWmsLink && (
-              <SecureWMSTile
-                urlTemplate={roadWmsLink}
-                zIndex={1}
-                opacity={0.5}
-                tileSize={512}
-              />
-            )}
-            {wardWms && wardWmsLink && (
-              <SecureWMSTile
-                urlTemplate={wardWmsLink}
-                zIndex={1}
-                opacity={0.5}
-                tileSize={512}
-              />
-            )}
+            <SecureWMSTile
+              links={[
+                showWmsLink && wmslinks,
+                roadWms && roadWmsLink,
+                wardWms && wardWmsLink,
+              ]}
+              zIndex={1}
+              opacity={0.5}
+            />
           </MapComponent>
 
           <MapInfoButton

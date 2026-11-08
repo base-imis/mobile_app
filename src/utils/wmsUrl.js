@@ -92,3 +92,30 @@ export function formatWmsUrl(url) {
   return formatted;
 }
 
+
+/**
+ * Merges WMS links for several layers into one GetMap link, so each map tile is a
+ * single request instead of one per layer. Falsy links (hidden layers) are skipped.
+ * LAYERS and STYLES keep the given order; GeoServer draws the first one at the bottom.
+ * Returns "" when no link is left.
+ */
+export function mergeWmsLinks(links) {
+  const usable = (links || []).filter(
+    (link) => typeof link === 'string' && link.includes('?'),
+  );
+  if (!usable.length) return '';
+
+  const param = (link, name) => {
+    const match = link.match(new RegExp(`[?&]${name}=([^&]*)`, 'i'));
+    return match ? match[1] : '';
+  };
+  const layers = usable.map((link) => param(link, 'LAYERS')).join(',');
+  const styles = usable.map((link) => param(link, 'STYLES')).join(',');
+
+  const set = (link, name, value) =>
+    new RegExp(`[?&]${name}=`, 'i').test(link)
+      ? link.replace(new RegExp(`([?&])${name}=[^&]*`, 'i'), `$1${name}=${value}`)
+      : `${link}&${name}=${value}`;
+
+  return set(set(usable[0], 'LAYERS', layers), 'STYLES', styles);
+}

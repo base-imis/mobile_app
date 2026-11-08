@@ -547,38 +547,16 @@ const SewageMapScreen = ({ navigation }) => {
             fillColor="rgba(45,87,250,0.07)"
           />
         )} */}
-            {showWmsLink && (
-              <SecureWMSTile
-                urlTemplate={wmslinks}
-                zIndex={1}
-                opacity={0.5}
-                tileSize={512}
-              />
-            )}
-            {roadWms && (
-              <SecureWMSTile
-                urlTemplate={roadWmsLink}
-                zIndex={1}
-                opacity={0.5}
-                tileSize={512}
-              />
-            )}
-            {wardWms && (
-              <SecureWMSTile
-                urlTemplate={wardWmsLink}
-                zIndex={1}
-                opacity={0.5}
-                tileSize={512}
-              />
-            )}
-            {sewerWMS && (
-              <SecureWMSTile
-                urlTemplate={sewerWMSLink}
-                zIndex={1}
-                opacity={0.5}
-                tileSize={512}
-              />
-            )}
+            <SecureWMSTile
+              links={[
+                showWmsLink && wmslinks,
+                roadWms && roadWmsLink,
+                wardWms && wardWmsLink,
+                sewerWMS && sewerWMSLink,
+              ]}
+              zIndex={1}
+              opacity={0.5}
+            />
           </MapComponent>
 
           <MapInfoButton onPress={() => setIsSaveModalVisible(true)} />

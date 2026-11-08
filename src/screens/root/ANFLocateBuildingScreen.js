@@ -705,50 +705,21 @@ const ANFLocateBuildingScreen = ({ navigation, route }) => {
             )}
 
             {/* WMS Layers */}
-            {showWmsLink && wmslinks && (
-              <SecureWMSTile
-                urlTemplate={wmslinks}
-                zIndex={1}
-                opacity={0.5}
-                tileSize={512}
-                maximumZ={20}
-                minimumZ={10}
-                tileCacheMaxAge={604800}
-              />
-            )}
-            {roadWms && roadWmsLink && (
-              <SecureWMSTile
-                urlTemplate={roadWmsLink}
-                zIndex={2}
-                opacity={0.5}
-                tileSize={512}
-                maximumZ={20}
-                minimumZ={10}
-                tileCacheMaxAge={604800}
-              />
-            )}
-            {wardWms && wardWmsLink && (
-              <SecureWMSTile
-                urlTemplate={wardWmsLink}
-                zIndex={3}
-                opacity={0.5}
-                tileSize={512}
-                maximumZ={20}
-                minimumZ={10}
-                tileCacheMaxAge={604800}
-              />
-            )}
-            {containmentWms && containmentWmsLink && (
-              <SecureWMSTile
-                urlTemplate={containmentWmsLink}
-                zIndex={4}
-                opacity={0.8}
-                tileSize={512}
-                maximumZ={20}
-                minimumZ={10}
-                tileCacheMaxAge={604800}
-              />
-            )}
+            <SecureWMSTile
+              links={[
+                showWmsLink && wmslinks,
+                roadWms && roadWmsLink,
+                wardWms && wardWmsLink,
+              ]}
+              zIndex={1}
+              opacity={0.5}
+            />
+            {/* Containments stay a separate, stronger overlay */}
+            <SecureWMSTile
+              links={[containmentWms && containmentWmsLink]}
+              zIndex={2}
+              opacity={0.8}
+            />
           </MapComponent>
 
           {/* Loading indicator */}
