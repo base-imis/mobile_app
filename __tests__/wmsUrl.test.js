@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { joinWmsUrl, wmsProxyUrl } from "../src/utils/wmsUrl";
+import { joinWmsUrl, mergeWmsLinks, wmsProxyUrl } from "../src/utils/wmsUrl";
 
 describe("joinWmsUrl", () => {
   const link = "wms?SERVICE=WMS&LAYERS=imis_base%3Abuildings_layer";
@@ -44,5 +44,40 @@ describe("wmsProxyUrl", () => {
     expect(wmsProxyUrl(api, "")).toBe("");
     expect(wmsProxyUrl(api, undefined)).toBe("");
     expect(wmsProxyUrl(api, "https://gs.example/wms")).toBe("");
+  });
+});
+
+describe("mergeWmsLinks", () => {
+  const link = (layer, style) =>
+    `https://gs.example/wms?SERVICE=WMS&REQUEST=GetMap&LAYERS=imis_base:${layer}&STYLES=imis_base:${style}&FORMAT=image/png&BBOX={minX},{minY},{maxX},{maxY}`;
+
+  it("puts every layer in one request, first layer at the bottom", () => {
+    const merged = mergeWmsLinks([
+      link("buildings_layer", "buildings_layer_none"),
+      link("roadlines_layer", "roadlines_layer_width"),
+    ]);
+    expect(merged).toBe(
+      "https://gs.example/wms?SERVICE=WMS&REQUEST=GetMap&LAYERS=imis_base:buildings_layer,imis_base:roadlines_layer&STYLES=imis_base:buildings_layer_none,imis_base:roadlines_layer_width&FORMAT=image/png&BBOX={minX},{minY},{maxX},{maxY}",
+    );
+  });
+
+  it("skips hidden layers", () => {
+    expect(mergeWmsLinks([false, link("wards_layer", "wards_layer_none"), null])).toBe(
+      link("wards_layer", "wards_layer_none"),
+    );
+  });
+
+  it("keeps the layer and style counts equal when a link has no STYLES", () => {
+    const merged = mergeWmsLinks([
+      "https://gs.example/wms?LAYERS=imis_base:wards_layer",
+      link("roadlines_layer", "roadlines_layer_width"),
+    ]);
+    expect(merged).toContain("LAYERS=imis_base:wards_layer,imis_base:roadlines_layer");
+    expect(merged).toContain("STYLES=,imis_base:roadlines_layer_width");
+  });
+
+  it("returns an empty string when nothing is visible", () => {
+    expect(mergeWmsLinks([false, null, ""])).toBe("");
+    expect(mergeWmsLinks(undefined)).toBe("");
   });
 });

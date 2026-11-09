@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import SecureWMSTile from "../../components/mapcomponent/SecureWMSTile";
+import ZoomToCityButton from "../../components/mapcomponent/ZoomToCityButton";
 import { joinWmsUrl } from "../../utils/wmsUrl";
 import { Alert, StyleSheet, View } from "react-native";
 import { INITIAL_LOCATION } from "../../core/constants/map";
@@ -163,31 +164,17 @@ const KmlViewerMapScreen = ({ route, navigation }) => {
                 fillColor="rgba(45,87,250,0.07)"
               />
             )}
-            {showWmsLink && (
-              <SecureWMSTile
-                urlTemplate={wmsLink}
-                zIndex={1}
-                opacity={0.5}
-                tileSize={512}
-              />
-            )}
-            {roadWms && (
-              <SecureWMSTile
-                urlTemplate={roadWmsLink}
-                zIndex={1}
-                opacity={0.5}
-                tileSize={512}
-              />
-            )}
-            {wardWms && (
-              <SecureWMSTile
-                urlTemplate={wardWmsLink}
-                zIndex={1}
-                opacity={0.5}
-                tileSize={512}
-              />
-            )}
+            <SecureWMSTile
+              links={[
+                showWmsLink && wmsLink,
+                roadWms && roadWmsLink,
+                wardWms && wardWmsLink,
+              ]}
+              zIndex={1}
+              opacity={0.5}
+            />
           </MapView>
+          <ZoomToCityButton mapRef={mapRef} bottom={175} />
           <FAB
             animated={false}
             style={styles.fab}

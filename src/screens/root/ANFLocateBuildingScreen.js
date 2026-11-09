@@ -32,6 +32,7 @@ import BottomSheet, {
 
 import { COLORS } from "../../core/theme";
 import SecureWMSTile from "../../components/mapcomponent/SecureWMSTile";
+import ZoomToCityButton from "../../components/mapcomponent/ZoomToCityButton";
 import { formatWmsUrl, joinWmsUrl } from "../../utils/wmsUrl";
 import { getCurrentLocation } from "../../helpers/location";
 import {
@@ -704,50 +705,21 @@ const ANFLocateBuildingScreen = ({ navigation, route }) => {
             )}
 
             {/* WMS Layers */}
-            {showWmsLink && wmslinks && (
-              <SecureWMSTile
-                urlTemplate={wmslinks}
-                zIndex={1}
-                opacity={0.5}
-                tileSize={512}
-                maximumZ={20}
-                minimumZ={10}
-                tileCacheMaxAge={604800}
-              />
-            )}
-            {roadWms && roadWmsLink && (
-              <SecureWMSTile
-                urlTemplate={roadWmsLink}
-                zIndex={2}
-                opacity={0.5}
-                tileSize={512}
-                maximumZ={20}
-                minimumZ={10}
-                tileCacheMaxAge={604800}
-              />
-            )}
-            {wardWms && wardWmsLink && (
-              <SecureWMSTile
-                urlTemplate={wardWmsLink}
-                zIndex={3}
-                opacity={0.5}
-                tileSize={512}
-                maximumZ={20}
-                minimumZ={10}
-                tileCacheMaxAge={604800}
-              />
-            )}
-            {containmentWms && containmentWmsLink && (
-              <SecureWMSTile
-                urlTemplate={containmentWmsLink}
-                zIndex={4}
-                opacity={0.8}
-                tileSize={512}
-                maximumZ={20}
-                minimumZ={10}
-                tileCacheMaxAge={604800}
-              />
-            )}
+            <SecureWMSTile
+              links={[
+                showWmsLink && wmslinks,
+                roadWms && roadWmsLink,
+                wardWms && wardWmsLink,
+              ]}
+              zIndex={1}
+              opacity={0.5}
+            />
+            {/* Containments stay a separate, stronger overlay */}
+            <SecureWMSTile
+              links={[containmentWms && containmentWmsLink]}
+              zIndex={2}
+              opacity={0.8}
+            />
           </MapComponent>
 
           {/* Loading indicator */}
@@ -806,6 +778,7 @@ const ANFLocateBuildingScreen = ({ navigation, route }) => {
           />
 
           {/* WMS Layer toggle */}
+          <ZoomToCityButton mapRef={mapComponentRef} bottom={240} />
           <FAB
             animated={false}
             style={[styles.fab, { backgroundColor: COLORS.primary }]}

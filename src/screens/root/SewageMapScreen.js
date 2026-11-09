@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import SecureWMSTile from "../../components/mapcomponent/SecureWMSTile";
+import ZoomToCityButton from "../../components/mapcomponent/ZoomToCityButton";
 import { joinWmsUrl } from "../../utils/wmsUrl";
 import { Alert, Platform, StyleSheet, View } from "react-native";
 import { Marker } from "react-native-maps";
@@ -455,6 +456,7 @@ const SewageMapScreen = ({ navigation }) => {
       {locationEnabled && permissionStatus && location ? (
         <>
           <MapComponent
+            ref={mapRef}
             handleMarkerPress={() => {
               console.log("Feature currently disabled: handleMarkerPress");
             }}
@@ -545,42 +547,21 @@ const SewageMapScreen = ({ navigation }) => {
             fillColor="rgba(45,87,250,0.07)"
           />
         )} */}
-            {showWmsLink && (
-              <SecureWMSTile
-                urlTemplate={wmslinks}
-                zIndex={1}
-                opacity={0.5}
-                tileSize={512}
-              />
-            )}
-            {roadWms && (
-              <SecureWMSTile
-                urlTemplate={roadWmsLink}
-                zIndex={1}
-                opacity={0.5}
-                tileSize={512}
-              />
-            )}
-            {wardWms && (
-              <SecureWMSTile
-                urlTemplate={wardWmsLink}
-                zIndex={1}
-                opacity={0.5}
-                tileSize={512}
-              />
-            )}
-            {sewerWMS && (
-              <SecureWMSTile
-                urlTemplate={sewerWMSLink}
-                zIndex={1}
-                opacity={0.5}
-                tileSize={512}
-              />
-            )}
+            <SecureWMSTile
+              links={[
+                showWmsLink && wmslinks,
+                roadWms && roadWmsLink,
+                wardWms && wardWmsLink,
+                sewerWMS && sewerWMSLink,
+              ]}
+              zIndex={1}
+              opacity={0.5}
+            />
           </MapComponent>
 
           <MapInfoButton onPress={() => setIsSaveModalVisible(true)} />
 
+          <ZoomToCityButton mapRef={mapRef} bottom={175} />
           <FAB
             animated={false}
             style={styles.fab}
